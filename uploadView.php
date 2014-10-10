@@ -1,12 +1,14 @@
 <?php
 
-require_once 'uploadHTML.php';
+require_once 'uploadViewHTML.php';
 require_once 'uploadController.php';
+
+session_start();
 
 $uploadController = new uploadController();
 $uploadBody = $uploadController->doUpload();
 
-$body = new uploadHTML();
-$body->echoBody($uploadBody);
+//$body = new uploadViewHTML();
+//$body->echoHTML($uploadBody);
 
 

@@ -6,9 +6,9 @@ require_once 'uploadView.php';
 require_once 'uploadModel.php';
 
 class viewHTML {
-	private $username = '';
+	//private $username = '';
 	private $usrValue = '';
-	private $password = '';
+	//private $password = '';
 	private $msg = '';
 	private $messageArray = array();
 	private $user;
@@ -127,9 +127,7 @@ public function echoHTML($msg){
     $dat = nl2br(ucwords(strftime("%Aen den %d %B.\n " . "År" . " %Y.\n Klockan " . "Är" . " %X.")));
 	//Min kod
 			
-			if($this->didUserPressUpload()){
-				
-			}
+
 			
 			
 			if($this->didUserPressRegister()){
@@ -172,7 +170,7 @@ public function echoHTML($msg){
 			$msg
 			$this->msg
 			
-			<form action='uploadHTML.php?upload' method='post'>
+			<form action='uploadView.php?upload' method='post'>
 				<input type='submit'  name='goToUpload' value='Upload image'/>
 				<br>
 			</form>
@@ -229,6 +227,8 @@ public function echoHTML($msg){
 
 //Om användaren klickar login och det är korrekt 
 public function didUserPressLogin(){
+
+	
 	    $username = $_POST['username'];
 	    $password = md5($_POST['password']);
 		echo "test";
