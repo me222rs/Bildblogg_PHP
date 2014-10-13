@@ -127,7 +127,7 @@ require_once 'modelLogin.php';
 				imagejpeg($scaled, $uploadfile);
 				
 				//Add image to database
-				$this->AddImageNameToDatabase($_FILES['filename']['name']);
+				$this->AddImageNameToDatabase($shittyFileName);
 				
 				
 				imagedestroy($image);

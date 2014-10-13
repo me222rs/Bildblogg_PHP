@@ -175,7 +175,7 @@ public function echoHTML($msg){
 				<br>
 			</form>
 			
-			<form action='GalleryHTML.php?gallery' method='post'>
+			<form action='galleryView.php?gallery' method='post'>
 				<input type='submit'  name='goToUpload' value='Galleri'/>
 				<br>
 			</form>
