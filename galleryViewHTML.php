@@ -48,12 +48,33 @@ class galleryViewHTML{
 				$deleteButton = "";
 				$loggedInUser = $_SESSION['login'];
 				$uploader = $this->galleryModel->GetUploader($this->getImageQueryString());
+				$displayedImage = $this->getImageQueryString();
+				$deleteMessage = "";
+				$commentArray = array();
+				
+				$commentArray = $this->galleryModel->GetCommentsFromDB();
 				
 				if($loggedInUser == $uploader && $uploader != ""){
-					$deleteButton = "<input type='submit' value='Ta bort'><br>";	
+					$deleteButton = "<form action='' method='post'><input type='submit' name='delete' value='Ta bort'><br></form>";	
 				}
 				
+				if($this->didUSerPressDelete() && $uploader == $loggedInUser){
+					$this->galleryModel->DeleteImageFromFolder($displayedImage);
+					header('Location: galleryView.php?gallery');
+				}elseif($this->didUSerPressDelete() && $uploader != $loggedInUser){
+					$deleteMessage = "Image could not be removed, retard...";
+				}
 				
+				if($this->didUserPressPostComment()){
+					$this->galleryModel->PostComment($displayedImage);
+				}
+				
+				$comment = "					
+					<div class='CommentBox'>
+						<p>Comment from: $userExample</p>
+						<p>$userCommentExample</p>
+						<p>$datePostedExample</p>
+					</div>";
 				
 				
 				
@@ -70,21 +91,34 @@ class galleryViewHTML{
 					<h2>Gallery</h2>
 					<a href='index.php?gallery'>Tillbaka</a><br>
 					
-					<form method='post'>
+					
 				 		$deleteButton
-				 	</form>
+				 		$deleteMessage
 					<img src='./UploadedImages/$image'>
 					<p>Uploader: $uploader</p>
-					<h2>Kommentarer</h2>
-					Inga kommentarer<br>
-					<textarea name='comment' id='comment' cols='40' rows='4'></textarea><br>
-					<input type='submit' value='Posta'>			
 					
+					<h2>Comment</h2>
+					<textarea name='comment' id='comment' cols='40' rows='4'></textarea><br>
+					<input type='submit' name='PostComment' value='Posta'>			
+					
+					<h3>Comments</h3>
+					<div id='CommentBox'>
+						<p>Comment from: Micke</p>
+						<p>This is a comment.</p>
+						<p>2014-10-14 14:30:00</p>
+					</div>
 				</body>
 				</html>
 		";
 			}
 		
+		}
+		
+		public function didUserPressPostComment(){
+			if(isset($_POST['PostComment'])){
+				return TRUE;
+			}
+			return FALSE;
 		}
 		
 		public function getImageQueryString(){
@@ -104,6 +138,17 @@ class galleryViewHTML{
 				return TRUE;
 			}
 			return FALSE;
+		}
+		
+		public function didUSerPressDelete(){
+			
+			if(isset($_POST['delete'])){
+				echo "Tryckt på delete!";
+				return TRUE;
+				
+			}
+			return FALSE;
+			
 		}
 			
 		}

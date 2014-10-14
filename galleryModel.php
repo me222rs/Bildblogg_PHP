@@ -42,6 +42,40 @@ require_once 'modelLogin.php';
 				 
 				}
 			
+			
+			public function EditComment(){
+				//Redigera kommentar man själv lagt upp
+			}
+			
+			public function DeleteComment(){
+				//Ta bort en kommentar man själv lagt upp
+			}
+			
+			public function PostComment($displayedImage){
+				//Posta en kommentar till någons bild 
+			}
+			
+			public function GetCommentsFromDB($displayedImage){
+				//Hämta alla kommentarer till en bild
+			}
+			
+			public function DeleteImageFromDB($displayedImage){
+				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				
+				$stmt = $db->prepare("DELETE FROM images WHERE imageName=?");
+				$stmt->execute(array($displayedImage));
+				
+				//$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			}
+			
+			public function DeleteImageFromFolder($displayedImage){
+				
+				@unlink('UploadedImages/'.$displayedImage);
+				
+				$this->DeleteImageFromDB($displayedImage);
+				
+			}
+			
 			public function GetAllImagesFromDB(){
 				
 				$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
