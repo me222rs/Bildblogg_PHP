@@ -1,7 +1,14 @@
 <?php
-
+	require_once 'galleryModel.php';
 class galleryViewHTML{
-        
+        private $galleryModel;
+		
+	public	function __construct() {
+        $this->galleryModel = new galleryModel();
+		//$this->uploadView = new uploadView();
+		//$this->uploadModel = new uploadModel();
+	}
+		
         public function echoHTML($body){
         	
 			$images = array();
@@ -36,7 +43,19 @@ class galleryViewHTML{
 				</html>
 		";
         }
-			if($this->didUserPressImage() && isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE){
+			if($this->didUserPressImage() == TRUE && isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE){
+				echo $_SESSION['login'];
+				$deleteButton = "";
+				$loggedInUser = $_SESSION['login'];
+				$uploader = $this->galleryModel->GetUploader($this->getImageQueryString());
+				
+				if($loggedInUser == $uploader && $uploader != ""){
+					$deleteButton = "<input type='submit' value='Ta bort'><br>";	
+				}
+				
+				
+				
+				
 				
 				$image = $this->getImageQueryString();
 				
@@ -49,13 +68,13 @@ class galleryViewHTML{
 				</head>
 				<body>
 					<h2>Gallery</h2>
-					<a href='index.php'>Tillbaka</a><br>
+					<a href='index.php?gallery'>Tillbaka</a><br>
 					
-					
-				 	<input type='submit' value='Ta bort'><br>
-				 	
+					<form method='post'>
+				 		$deleteButton
+				 	</form>
 					<img src='./UploadedImages/$image'>
-					
+					<p>Uploader: $uploader</p>
 					<h2>Kommentarer</h2>
 					Inga kommentarer<br>
 					<textarea name='comment' id='comment' cols='40' rows='4'></textarea><br>

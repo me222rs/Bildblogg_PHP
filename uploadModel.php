@@ -57,13 +57,14 @@ require_once 'modelLogin.php';
 		}
 		
 		public function AddImageNameToDatabase($imageName){
+			$upLoaderID = $_SESSION['login'];
 			$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
 			
     			if (mysqli_connect_errno($connection)){
         			echo "MySql Error: " . mysqli_connect_error();
     			}
 		
-    		mysqli_query($connection,"INSERT images SET imageName = '$imageName'");
+    		mysqli_query($connection,"INSERT images SET imageName = '$imageName', upLoaderID = '$upLoaderID'");
 		}
 		
 		

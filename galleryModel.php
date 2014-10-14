@@ -9,6 +9,39 @@ require_once 'modelLogin.php';
         		$this->model = new modelLogin();	
     		}
 			
+			public function GetUploader($loggedInUser){
+				/*
+				$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
+    			if (mysqli_connect_errno($connection)){
+        			echo "MySql Error: " . mysqli_connect_error();
+    			}
+				
+				$result = mysqli_query($connection,"SELECT upLoaderID FROM images WHERE upLoaderID = $loggedInUser");
+				
+				echo $loggedInUser;
+				var_dump($result);
+				echo ">>> $result <<<";
+				return $result; 
+				*/
+				
+				$returnString = "";
+				
+				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				
+				$stmt = $db->prepare("SELECT upLoaderID FROM images WHERE imageName=?");
+				$stmt->execute(array($loggedInUser));
+				
+				$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				var_dump($rows);
+				echo $rows[0];
+				
+				return $rows[0]["upLoaderID"];
+				
+				
+				 
+				 
+				}
+			
 			public function GetAllImagesFromDB(){
 				
 				$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
