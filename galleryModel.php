@@ -51,12 +51,29 @@ require_once 'modelLogin.php';
 				//Ta bort en kommentar man själv lagt upp
 			}
 			
-			public function PostComment($displayedImage){
+			public function PostComment($displayedImage, $comment){
 				//Posta en kommentar till någons bild 
+				echo $displayedImage;
+				echo $comment;
+				
+				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				
+				$stmt = $db->prepare("INSERT INTO comments(comment,imageName) VALUES(:comment,:imageName)");
+				$stmt->execute(array(':comment' => $comment, ':imageName' => $displayedImage));
+				
 			}
 			
 			public function GetCommentsFromDB($displayedImage){
 				//Hämta alla kommentarer till en bild
+				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				
+				$rows = array();
+				
+				$stmt = $db->prepare("SELECT * FROM comments WHERE imageName=?");
+				$stmt->execute(array($displayedImage));
+				$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				//var_dump($rows[0]);
+				return $rows;
 			}
 			
 			public function DeleteImageFromDB($displayedImage){

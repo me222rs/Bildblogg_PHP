@@ -52,7 +52,29 @@ class galleryViewHTML{
 				$deleteMessage = "";
 				$commentArray = array();
 				
-				$commentArray = $this->galleryModel->GetCommentsFromDB();
+				$commentArray = $this->galleryModel->GetCommentsFromDB($displayedImage);
+				// $count = 0;
+				// echo $commentArray[1]['imageName'];
+				// $comments = array();
+				// foreach($commentArray['comment'] as $value){
+					// array_push($comments, "$value");
+					// $count++;
+				// }
+				$comment = array();
+				$commentDate = array();
+				//$comments = $commentArray['comment'];
+				//$implodedArray2 = implode(", ",array_values($commentArray));
+				//$implodedArray2 = implode("", $comments);
+				//var_dump($implodedArray2);
+				$commentArrayLength = count($commentArray);
+				for($i = 0; $i < $commentArrayLength; $i++){
+					
+					array_push($comment, "<p>" ,$commentArray[$i]['comment'], "</p><br><em>", $commentArray[$i]['date'], "</em>");
+					//array_push($commentDate, $commentArray[$i]['date']);
+				}
+
+				$implodedArrayComment = implode("", $comment);
+				//$implodedArrayDate = implode("", $commentDate);
 				
 				if($loggedInUser == $uploader && $uploader != ""){
 					$deleteButton = "<form action='' method='post'><input type='submit' name='delete' value='Ta bort'><br></form>";	
@@ -65,14 +87,15 @@ class galleryViewHTML{
 					$deleteMessage = "Image could not be removed, retard...";
 				}
 				
-				if($this->didUserPressPostComment()){
-					$this->galleryModel->PostComment($displayedImage);
+				if($this->didUserPressPostComment() != ""){
+					$this->galleryModel->PostComment($displayedImage, $this->didUserPressPostComment());
+					header('Location: galleryView.php?gallery&image=' . $displayedImage);
 				}
 				
 				$comment = "					
 					<div class='CommentBox'>
 						<p>Comment from: $userExample</p>
-						<p>$userCommentExample</p>
+						<p>$crap</p>
 						<p>$datePostedExample</p>
 					</div>";
 				
@@ -89,7 +112,7 @@ class galleryViewHTML{
 				</head>
 				<body>
 					<h2>Gallery</h2>
-					<a href='index.php?gallery'>Tillbaka</a><br>
+					<a href='galleryView.php?gallery'>Tillbaka</a><br>
 					
 					
 				 		$deleteButton
@@ -97,15 +120,20 @@ class galleryViewHTML{
 					<img src='./UploadedImages/$image'>
 					<p>Uploader: $uploader</p>
 					
-					<h2>Comment</h2>
-					<textarea name='comment' id='comment' cols='40' rows='4'></textarea><br>
-					<input type='submit' name='PostComment' value='Posta'>			
+					
+					
+					<form method='post'>
+						<h2>Comment</h2>
+						<textarea name='comment' id='comment' cols='40' rows='4'></textarea><br>
+						<input type='submit' name='PostComment' value='Posta'>
+					</form>
+								
 					
 					<h3>Comments</h3>
 					<div id='CommentBox'>
-						<p>Comment from: Micke</p>
-						<p>This is a comment.</p>
-						<p>2014-10-14 14:30:00</p>
+						
+						$implodedArrayComment
+						
 					</div>
 				</body>
 				</html>
@@ -115,10 +143,11 @@ class galleryViewHTML{
 		}
 		
 		public function didUserPressPostComment(){
-			if(isset($_POST['PostComment'])){
-				return TRUE;
+			if(isset($_POST['comment'])){
+				echo "Tryckt på Posta";
+				return $_POST['comment'];
 			}
-			return FALSE;
+			return "";
 		}
 		
 		public function getImageQueryString(){
