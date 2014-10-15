@@ -32,8 +32,8 @@ require_once 'modelLogin.php';
 				$stmt->execute(array($loggedInUser));
 				
 				$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-				var_dump($rows);
-				echo $rows[0];
+				//var_dump($rows);
+				//echo $rows[0];
 				
 				return $rows[0]["upLoaderID"];
 				
@@ -47,19 +47,24 @@ require_once 'modelLogin.php';
 				//Redigera kommentar man själv lagt upp
 			}
 			
-			public function DeleteComment(){
+			public function DeleteComment($commentID){
 				//Ta bort en kommentar man själv lagt upp
+				//echo $commentID;
+				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				$stmt = $db->prepare("DELETE FROM comments WHERE commentID=:commentID");
+				$stmt->bindValue(':commentID', $commentID, PDO::PARAM_STR);
+				$stmt->execute();
 			}
 			
-			public function PostComment($displayedImage, $comment){
+			public function PostComment($displayedImage, $comment, $user){
 				//Posta en kommentar till någons bild 
-				echo $displayedImage;
-				echo $comment;
+				//echo $displayedImage;
+				//echo $comment;
 				
 				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				
-				$stmt = $db->prepare("INSERT INTO comments(comment,imageName) VALUES(:comment,:imageName)");
-				$stmt->execute(array(':comment' => $comment, ':imageName' => $displayedImage));
+				$stmt = $db->prepare("INSERT INTO comments(comment,imageName,user) VALUES(:comment,:imageName,:user)");
+				$stmt->execute(array(':comment' => $comment, ':imageName' => $displayedImage, ':user' => $user));
 				
 			}
 			
@@ -80,6 +85,9 @@ require_once 'modelLogin.php';
 				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				
 				$stmt = $db->prepare("DELETE FROM images WHERE imageName=?");
+				$stmt->execute(array($displayedImage));
+				
+				$stmt = $db->prepare("DELETE FROM comments WHERE imageName=?");
 				$stmt->execute(array($displayedImage));
 				
 				//$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -136,7 +144,7 @@ require_once 'modelLogin.php';
 	foreach($dbArray as $file) {
 		array_push($imagesArray, $file);
 		//echo "filename: $file : filetype: " . filetype($file) . "<br />";
-		echo "bajs";
+		//echo "bajs";
 	}
 				
 				return $imagesArray;

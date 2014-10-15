@@ -14,13 +14,12 @@ class galleryViewHTML{
 			$images = array();
 			
         	if(isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE && $this->didUserPressImage() == FALSE){
-			//<a href="http://www.hyperlinkcode.com"><img src="http://hyperlinkcode.com/images/sample-image.gif"></a>
-			//$images = implode("<a href='http://www.mikaeledberg.se'><img src='$body'></a>");
 			
+			//Loopar igenom alla bilder och gör dom till klickbara länkar.
 			foreach($body as $value){
 				array_push($images, "<a href='galleryView.php?gallery&image=$value'><img src='./UploadedImages/$value'></a>");
 			}
-			
+			//Sätter ihop allt i arrayen för att sedan trycka ut det i html.
 			$implodedArray = implode("", $images);
 			
             echo "
@@ -43,6 +42,7 @@ class galleryViewHTML{
 				</html>
 		";
         }
+			
 			if($this->didUserPressImage() == TRUE && isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE){
 				echo $_SESSION['login'];
 				$deleteButton = "";
@@ -53,23 +53,24 @@ class galleryViewHTML{
 				$commentArray = array();
 				
 				$commentArray = $this->galleryModel->GetCommentsFromDB($displayedImage);
-				// $count = 0;
-				// echo $commentArray[1]['imageName'];
-				// $comments = array();
-				// foreach($commentArray['comment'] as $value){
-					// array_push($comments, "$value");
-					// $count++;
-				// }
+
 				$comment = array();
 				$commentDate = array();
-				//$comments = $commentArray['comment'];
-				//$implodedArray2 = implode(", ",array_values($commentArray));
-				//$implodedArray2 = implode("", $comments);
-				//var_dump($implodedArray2);
+
 				$commentArrayLength = count($commentArray);
+				
+				
 				for($i = 0; $i < $commentArrayLength; $i++){
+					if($commentArray[$i]['user'] == $loggedInUser){
+						$deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";	
+					}
 					
-					array_push($comment, "<p>" ,$commentArray[$i]['comment'], "</p><br><em>", $commentArray[$i]['date'], "</em>");
+					array_push($comment, "<form name='comments' method='post'> 
+											<input type='hidden' name='deleteCommentshit" , "$i", "' value='", "$i" , "'>"
+											."  $deleteCommentButton " , "<p><b>" , $commentArray[$i]['user'] , "</b></p>", "<p>" 
+					, $commentArray[$i]['comment'], "</p><br><em>", $commentArray[$i]['date'], "</em></form>");
+					
+					$deleteCommentButton = "";
 					//array_push($commentDate, $commentArray[$i]['date']);
 				}
 
@@ -88,16 +89,15 @@ class galleryViewHTML{
 				}
 				
 				if($this->didUserPressPostComment() != ""){
-					$this->galleryModel->PostComment($displayedImage, $this->didUserPressPostComment());
+					$this->galleryModel->PostComment($displayedImage, $this->didUserPressPostComment(), $loggedInUser);
+					header('Location: galleryView.php?gallery&image=' . $displayedImage);
+				}
+				$commentID = $this->didUserPressDeleteComment($commentArrayLength);
+				if($commentID != ""){
+					$this->galleryModel->DeleteComment($commentArray[$commentID]['commentID']);
 					header('Location: galleryView.php?gallery&image=' . $displayedImage);
 				}
 				
-				$comment = "					
-					<div class='CommentBox'>
-						<p>Comment from: $userExample</p>
-						<p>$crap</p>
-						<p>$datePostedExample</p>
-					</div>";
 				
 				
 				
@@ -140,6 +140,19 @@ class galleryViewHTML{
 		";
 			}
 		
+		}
+
+		public function didUserPressDeleteComment($commentArrayLength){
+			for ($i=0; $i < $commentArrayLength; $i++) { 
+				if(isset($_POST['deleteComment' .$i.''])){
+					return $_POST['deleteCommentshit'.$i.''];
+				}
+			}
+			// if(isset($_POST['deleteComment0'])){
+				// echo "Tryckt på Ta bort kommentar!";
+				// var_dump($_POST);
+				// return $_POST['deleteCommentshit0'];
+			// }
 		}
 		
 		public function didUserPressPostComment(){
