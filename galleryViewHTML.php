@@ -105,7 +105,15 @@ class galleryViewHTML{
 				}
 				
 				$commentID = $this->didUserPressEditComment($commentArrayLength);
+				//echo "commentID=";
+				//echo $commentID;
 				
+				//if(!isset($_SESSION['bajs'])){
+					//$_SESSION['bajs'] = $commentID;
+					//echo "test=";
+					//echo $_SESSION['bajs']; 
+				//}
+				 
 				if($commentID != ""){
 					//$this->galleryModel->EditComment($commentID, $commentValue);
 					$commentToEditValue = $this->galleryModel->GetCommentToEdit($commentArray[$commentID]['commentID']);
@@ -116,10 +124,29 @@ class galleryViewHTML{
 				}
 				
 				
-				if($this->didUserPressPostEditedComment() != "" && isset($_SESSION['login'])){
+				if($this->didUserPressPostEditedComment() == TRUE && isset($_SESSION['login'])){
 					$commentValue = $this->GetEditValueFromTextbox();
+					//$commentID = 
+					//echo $commentValue;
+					//echo "kommer in i bajs";
+					//echo $commentID;
+					//echo $commentArray[$commentID]['commentID'];
+					$success = $this->galleryModel->EditComment($commentArray[$commentID]['commentID'], $commentValue);
+					if($success == TRUE){
+						header('Location: galleryView.php?gallery&image=' . $displayedImage);
+					}
+					//header('Location: galleryView.php?gallery&image=' . $displayedImage);
+					//unset($_SESSION['bajs']);
+					//if($this->didUserPressPostEditedComment() == TRUE){
+						//unset($_SESSION['bajs']);
+					//}
+					//header('Location: galleryView.php?gallery&image=' . $displayedImage);
 					
-					$this->galleryModel->EditComment($commentArray[$commentID]['commentID'], $commentValue);
+					
+					//if($this->didUserPressEditComment2() == TRUE){
+						//unset($_SESSION['bajs']);
+				//}
+					
 				}
 				
 				
@@ -165,6 +192,8 @@ class galleryViewHTML{
 			}
 		
 		}
+
+		
 		public function GetEditValueFromTextbox(){
 			return $_POST['editCommentTextField'];
 		}

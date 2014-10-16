@@ -44,7 +44,7 @@ require_once 'modelLogin.php';
 			
 			
 			public function GetCommentToEdit($commentID){
-				echo $commentID;
+				//echo $commentID;
 				
 				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				$stmt = $db->prepare("SELECT comment FROM comments WHERE commentID=:commentID");
@@ -53,13 +53,28 @@ require_once 'modelLogin.php';
 				return $rows[0]['comment'];
 			}
 			
-			public function EditComment($commentID, $commentValue){
+			public function EditComment($commentID, $comment){
 				//Redigera kommentar man själv lagt upp
-				//echo ">>> $commentID <<<";
-				echo ">>> $commentValue <<<";
+				if($commentID != ""){
+					$_SESSION['commentID'] = $commentID;	
+				}
+				if($comment != ""){
+					echo "Kommer in i EditComment";
+				echo $_SESSION['commentID'];
+				echo $comment;
 				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				$stmt = $db->prepare("UPDATE comments SET comment=? WHERE commentID=?");
-				$stmt->execute(array($commentValue, $commentID));
+				$stmt->execute(array($comment, $_SESSION['commentID']));
+				$affected_rows = $stmt->rowCount();
+				if($affected_rows != ""){
+					return true;
+				} 
+				else{
+					return false;
+				}
+				}
+				
+				//$_SESSION['bajs'] = "";
 			}
 			
 			public function DeleteComment($commentID){
