@@ -43,8 +43,23 @@ require_once 'modelLogin.php';
 				}
 			
 			
-			public function EditComment(){
+			public function GetCommentToEdit($commentID){
+				echo $commentID;
+				
+				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				$stmt = $db->prepare("SELECT comment FROM comments WHERE commentID=:commentID");
+				$stmt->execute(array(':commentID' => $commentID));
+				$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				return $rows[0]['comment'];
+			}
+			
+			public function EditComment($commentID, $commentValue){
 				//Redigera kommentar man själv lagt upp
+				//echo ">>> $commentID <<<";
+				echo ">>> $commentValue <<<";
+				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				$stmt = $db->prepare("UPDATE comments SET comment=? WHERE commentID=?");
+				$stmt->execute(array($commentValue, $commentID));
 			}
 			
 			public function DeleteComment($commentID){

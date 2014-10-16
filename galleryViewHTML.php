@@ -62,15 +62,18 @@ class galleryViewHTML{
 				
 				for($i = 0; $i < $commentArrayLength; $i++){
 					if($commentArray[$i]['user'] == $loggedInUser){
-						$deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";	
+						$deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
+						
+						$editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
 					}
 					
 					array_push($comment, "<form name='comments' method='post'> 
 											<input type='hidden' name='deleteCommentshit" , "$i", "' value='", "$i" , "'>"
-											."  $deleteCommentButton " , "<p><b>" , $commentArray[$i]['user'] , "</b></p>", "<p>" 
+											."  $deleteCommentButton $editCommentButton" , "<p><b>" , $commentArray[$i]['user'] , "</b></p>", "<p>" 
 					, $commentArray[$i]['comment'], "</p><br><em>", $commentArray[$i]['date'], "</em></form>");
 					
 					$deleteCommentButton = "";
+					$editCommentButton = "";
 					//array_push($commentDate, $commentArray[$i]['date']);
 				}
 
@@ -80,6 +83,9 @@ class galleryViewHTML{
 				if($loggedInUser == $uploader && $uploader != ""){
 					$deleteButton = "<form action='' method='post'><input type='submit' name='delete' value='Ta bort'><br></form>";	
 				}
+				
+				
+				
 				
 				if($this->didUSerPressDelete() && $uploader == $loggedInUser){
 					$this->galleryModel->DeleteImageFromFolder($displayedImage);
@@ -96,6 +102,24 @@ class galleryViewHTML{
 				if($commentID != ""){
 					$this->galleryModel->DeleteComment($commentArray[$commentID]['commentID']);
 					header('Location: galleryView.php?gallery&image=' . $displayedImage);
+				}
+				
+				$commentID = $this->didUserPressEditComment($commentArrayLength);
+				
+				if($commentID != ""){
+					//$this->galleryModel->EditComment($commentID, $commentValue);
+					$commentToEditValue = $this->galleryModel->GetCommentToEdit($commentArray[$commentID]['commentID']);
+					$editCommentTextField = "<form method='post'>
+												<input type='text' name='editCommentTextField' value='$commentToEditValue'></input>
+												<input type='submit' name='newComment' value='Post'></input>
+											</form>";
+				}
+				
+				
+				if($this->didUserPressPostEditedComment() != "" && isset($_SESSION['login'])){
+					$commentValue = $this->GetEditValueFromTextbox();
+					
+					$this->galleryModel->EditComment($commentArray[$commentID]['commentID'], $commentValue);
 				}
 				
 				
@@ -127,7 +151,7 @@ class galleryViewHTML{
 						<textarea name='comment' id='comment' cols='40' rows='4'></textarea><br>
 						<input type='submit' name='PostComment' value='Posta'>
 					</form>
-								
+					$editCommentTextField
 					
 					<h3>Comments</h3>
 					<div id='CommentBox'>
@@ -141,8 +165,33 @@ class galleryViewHTML{
 			}
 		
 		}
+		public function GetEditValueFromTextbox(){
+			return $_POST['editCommentTextField'];
+		}
+		
+		public function didUserPressPostEditedComment(){
+			if(isset($_POST['newComment'])){
+				return TRUE;
+			}
+			return TRUE;
+		}
+		public function didUserPressEditComment2(){
+			if(isset($_POST['editComment'])){
+				return TRUE;
+			}
+			return fALSE;
+		}
+		public function didUserPressEditComment($commentArrayLength){
+			echo "Tryckt på edit comment";
+			for ($i=0; $i < $commentArrayLength; $i++) { 
+				if(isset($_POST['editComment' .$i.''])){
+					return $_POST['deleteCommentshit'.$i.''];
+				}
+			}
+		}
 
 		public function didUserPressDeleteComment($commentArrayLength){
+			echo "Tryckt på delete comment";
 			for ($i=0; $i < $commentArrayLength; $i++) { 
 				if(isset($_POST['deleteComment' .$i.''])){
 					return $_POST['deleteCommentshit'.$i.''];
