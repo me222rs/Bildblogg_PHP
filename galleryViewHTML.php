@@ -99,8 +99,11 @@ class galleryViewHTML{
 					header('Location: galleryView.php?gallery&image=' . $displayedImage);
 				}
 				$commentID = $this->didUserPressDeleteComment($commentArrayLength);
-				if($commentID != ""){
+				
+				//Detta körs inte om en användare ändrat värde på hiddenfield i html koden
+				if($commentID != "" && $_SESSION['login'] == $commentArray[$commentID]['user']){
 					$this->galleryModel->DeleteComment($commentArray[$commentID]['commentID']);
+					
 					header('Location: galleryView.php?gallery&image=' . $displayedImage);
 				}
 				
@@ -124,7 +127,7 @@ class galleryViewHTML{
 				}
 				
 				
-				if($this->didUserPressPostEditedComment() == TRUE && isset($_SESSION['login'])){
+				if($this->didUserPressPostEditedComment() == TRUE && isset($_SESSION['login']) && $_SESSION['login'] == "Micke"){
 					$commentValue = $this->GetEditValueFromTextbox();
 					//$commentID = 
 					//echo $commentValue;

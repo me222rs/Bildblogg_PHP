@@ -3,6 +3,8 @@
 require_once 'modelLogin.php';
 	class galleryModel {
 		private $model;
+		private $connectionString = "mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', ''";
+		
 		
 	
    	 		public function __construct(){
@@ -10,19 +12,7 @@ require_once 'modelLogin.php';
     		}
 			
 			public function GetUploader($loggedInUser){
-				/*
-				$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
-    			if (mysqli_connect_errno($connection)){
-        			echo "MySql Error: " . mysqli_connect_error();
-    			}
-				
-				$result = mysqli_query($connection,"SELECT upLoaderID FROM images WHERE upLoaderID = $loggedInUser");
-				
-				echo $loggedInUser;
-				var_dump($result);
-				echo ">>> $result <<<";
-				return $result; 
-				*/
+
 				
 				$returnString = "";
 				
@@ -74,12 +64,12 @@ require_once 'modelLogin.php';
 				}
 				}
 				
-				//$_SESSION['bajs'] = "";
+				
 			}
 			
 			public function DeleteComment($commentID){
 				//Ta bort en kommentar man själv lagt upp
-				//echo $commentID;
+				
 				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				$stmt = $db->prepare("DELETE FROM comments WHERE commentID=:commentID");
 				$stmt->bindValue(':commentID', $commentID, PDO::PARAM_STR);
@@ -88,8 +78,6 @@ require_once 'modelLogin.php';
 			
 			public function PostComment($displayedImage, $comment, $user){
 				//Posta en kommentar till någons bild 
-				//echo $displayedImage;
-				//echo $comment;
 				
 				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				
@@ -107,7 +95,7 @@ require_once 'modelLogin.php';
 				$stmt = $db->prepare("SELECT * FROM comments WHERE imageName=?");
 				$stmt->execute(array($displayedImage));
 				$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-				//var_dump($rows[0]);
+				
 				return $rows;
 			}
 			
@@ -120,7 +108,7 @@ require_once 'modelLogin.php';
 				$stmt = $db->prepare("DELETE FROM comments WHERE imageName=?");
 				$stmt->execute(array($displayedImage));
 				
-				//$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				
 			}
 			
 			public function DeleteImageFromFolder($displayedImage){
@@ -138,12 +126,7 @@ require_once 'modelLogin.php';
         			echo "MySql Error: " . mysqli_connect_error();
     			}
 				$result = mysqli_query($connection,"SELECT imageName FROM images");
-				//echo $result;
-				//$count = mysqli_num_rows($result);
-				//echo $count;
 				
-				//$row = array();
-				//$row = mysqli_fetch_all($result,MYSQLI_ASSOC);
 				$imageArray = array();
 				while ($row = mysqli_fetch_assoc($result)) {
        				array_push($imageArray, $row['imageName']);
@@ -156,7 +139,7 @@ require_once 'modelLogin.php';
 
    				return $imageArray;
 				
-				//return $row;
+				
 			}
 			
 			public function ShowAllImages(){
@@ -165,20 +148,19 @@ require_once 'modelLogin.php';
 				
 				
 				$dbArray = $this->GetAllImagesFromDB();
-				//echo $dbArray[0];
+				
 				$dir = "./UploadedImages/";
 
-				//var_dump($dbArray);
+				
 				
 				
 	foreach($dbArray as $file) {
 		array_push($imagesArray, $file);
-		//echo "filename: $file : filetype: " . filetype($file) . "<br />";
-		//echo "bajs";
+		
 	}
 				
 				return $imagesArray;
 				
-				//var_dump($imagesArray);
+				
 			}
 	}
