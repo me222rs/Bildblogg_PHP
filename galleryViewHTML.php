@@ -127,7 +127,7 @@ class galleryViewHTML{
 				}
 				
 				
-				if($this->didUserPressPostEditedComment() == TRUE && isset($_SESSION['login']) && $_SESSION['login'] == "Micke"){
+				if($this->didUserPressPostEditedComment() == TRUE && isset($_SESSION['login']) && $_SESSION['login'] == $commentArray[$commentID]['user']){
 					$commentValue = $this->GetEditValueFromTextbox();
 					//$commentID = 
 					//echo $commentValue;
