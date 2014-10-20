@@ -11,6 +11,20 @@ require_once 'modelLogin.php';
         		$this->model = new modelLogin();	
     		}
 			
+			
+			// public function UnsetJavascriptMessage(){
+				// $_SESSION['javascriptMessage'] == "";
+			// }
+// 			
+			// public function SetJavascriptMessage($javascriptMessage){
+				// $_SESSION['javascriptMessage'] = "<script>alert('$javascriptMessage')</script>";
+			// }
+// 			
+			// public function GetJavascriptMessage(){
+				// return $_SESSION['javascriptMessage'] = "<script>alert('$javascriptMessage')</script>";
+			// }
+			
+			
 			public function GetUploader($loggedInUser){
 
 				

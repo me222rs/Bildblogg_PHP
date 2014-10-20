@@ -67,6 +67,13 @@ require_once 'modelLogin.php';
     		mysqli_query($connection,"INSERT images SET imageName = '$imageName', upLoaderID = '$upLoaderID'");
 		}
 		
+		public function GetFileName(){
+			return $_FILES['filename']['name'];
+		}
+		
+		public function GetFileSize(){
+			return filesize($_FILES['filename']['tmp_name']);
+		}
 		
 		public function SaveImageToFolder(){
 			if($this->model->loginStatus()){

@@ -9,6 +9,20 @@ class galleryViewHTML{
 		//$this->uploadModel = new uploadModel();
 	}
 		
+		public function ValidateComment($comment){
+			//if(strlen($comment) > 200){
+			//	echo "kommentaren är för lång";
+			//	return $comment;
+			//}
+			
+			if(strpos($comment,'<') !== false || strpos($comment,'>') !== false){
+				//$strippedComment = filter_var($comment, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+				return "The comment contains not valid characters!";
+			}
+			//echo "kommentaren är ok";
+			return "";
+		}
+		
         public function echoHTML($body){
         	
 			$images = array();
@@ -17,7 +31,7 @@ class galleryViewHTML{
 			
 			//Loopar igenom alla bilder och gör dom till klickbara länkar.
 			foreach($body as $value){
-				array_push($images, "<a href='galleryView.php?gallery&image=$value'><img src='./UploadedImages/$value'></a>");
+				array_push($images, "<div class='gallerypics'><a href='galleryView.php?gallery&image=$value'><img src='./UploadedImages/$value'></a></div>");
 			}
 			//Sätter ihop allt i arrayen för att sedan trycka ut det i html.
 			$implodedArray = implode("", $images);
@@ -27,17 +41,21 @@ class galleryViewHTML{
 				<html>
 				<head>
 					<meta charset=UTF-8>
+					<link rel='stylesheet' type='text/css' href='Css/styles1.css'>
 					<title>Gallery</title>
 				</head>
 				<body>
-					<h2>Gallery</h2>
+				<div id='content'>
+				<header><h1>Mickes fotosida</h1></header>
+					<div id='pageNav'><h2>Gallery</h2></div>
 					<a href='index.php'>Tillbaka</a><br>
 					
 					
-				 
-					$implodedArray
-								
-					
+				 	<div id='galleryDiv'>
+						$implodedArray
+					</div>
+					<footer><p>Mickes fotosida</p></footer>				
+					</div>
 				</body>
 				</html>
 		";
@@ -61,13 +79,24 @@ class galleryViewHTML{
 				
 				
 				for($i = 0; $i < $commentArrayLength; $i++){
-					if($commentArray[$i]['user'] == $loggedInUser){
+						//Visar knappar ifall att den inloggade användaren är den som lagt upp kommentaren
+					
+					if($commentArray[$i]['user'] == $loggedInUser || $commentArray[$i]['user'] != "Admin"){
 						$deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
 						
 						$editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
 					}
 					
-					array_push($comment, "<form name='comments' method='post'> 
+					
+					//Visar alla knappar för admin
+					if($commentArray[$i]['user'] == "Admin" && $commentArray[$i]['user'] == $loggedInUser){
+						$deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
+						
+						$editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
+					}
+					
+					//array med alla kommentarer redo för utskrift
+					array_push($comment, "<form name='comments' method='post' id='comments'> 
 											<input type='hidden' name='deleteCommentshit" , "$i", "' value='", "$i" , "'>"
 											."  $deleteCommentButton $editCommentButton" , "<p><b>" , $commentArray[$i]['user'] , "</b></p>", "<p>" 
 					, $commentArray[$i]['comment'], "</p><br><em>", $commentArray[$i]['date'], "</em></form>");
@@ -80,14 +109,15 @@ class galleryViewHTML{
 				$implodedArrayComment = implode("", $comment);
 				//$implodedArrayDate = implode("", $commentDate);
 				
-				if($loggedInUser == $uploader && $uploader != ""){
+				//Ta bort en bild
+				if($loggedInUser == $uploader && $uploader != "" || $loggedInUser == "Admin" && $uploader != ""){
 					$deleteButton = "<form action='' method='post'><input type='submit' name='delete' value='Ta bort'><br></form>";	
 				}
 				
 				
 				
 				
-				if($this->didUSerPressDelete() && $uploader == $loggedInUser){
+				if($this->didUSerPressDelete() && $uploader == $loggedInUser || $this->didUSerPressDelete() && $loggedInUser == "Admin"){
 					$this->galleryModel->DeleteImageFromFolder($displayedImage);
 					header('Location: galleryView.php?gallery');
 				}elseif($this->didUSerPressDelete() && $uploader != $loggedInUser){
@@ -95,13 +125,18 @@ class galleryViewHTML{
 				}
 				
 				if($this->didUserPressPostComment() != ""){
-					$this->galleryModel->PostComment($displayedImage, $this->didUserPressPostComment(), $loggedInUser);
-					header('Location: galleryView.php?gallery&image=' . $displayedImage);
+					$validMessage = $this->ValidateComment($this->didUserPressPostComment());
+					if($validMessage == ""){
+						//$this->galleryModel->SetJavascriptMessage($validMessage);
+						$this->galleryModel->PostComment($displayedImage, $this->didUserPressPostComment(), $loggedInUser);
+						header('Location: galleryView.php?gallery&image=' . $displayedImage);
+					}
+					
 				}
 				$commentID = $this->didUserPressDeleteComment($commentArrayLength);
 				
 				//Detta körs inte om en användare ändrat värde på hiddenfield i html koden
-				if($commentID != "" && $_SESSION['login'] == $commentArray[$commentID]['user']){
+				if($commentID != "" && $_SESSION['login'] == $commentArray[$commentID]['user'] || $commentID != "" && $_SESSION['login'] == "Admin"){
 					$this->galleryModel->DeleteComment($commentArray[$commentID]['commentID']);
 					
 					header('Location: galleryView.php?gallery&image=' . $displayedImage);
@@ -154,7 +189,8 @@ class galleryViewHTML{
 				
 				
 				
-				
+				//$jsMessage = $this->galleryModel->GetJavascriptMessage();
+				//$this->galleryModel->UnsetJavascriptMessage();
 				$image = $this->getImageQueryString();
 				
 				echo "
@@ -162,32 +198,36 @@ class galleryViewHTML{
 				<html>
 				<head>
 					<meta charset=UTF-8>
+					<link rel='stylesheet' type='text/css' href='Css/styles1.css'>
 					<title>Gallery</title>
 				</head>
 				<body>
-					<h2>Gallery</h2>
+				<div id='content'>
+					<header><h1>Mickes fotosida</h1></header>
+					<div id='pageNav'><h2>Gallery</h2></div>
 					<a href='galleryView.php?gallery'>Tillbaka</a><br>
 					
-					
+					<div id='oneImage'>	
 				 		$deleteButton
 				 		$deleteMessage
-					<img src='./UploadedImages/$image'>
-					<p>Uploader: $uploader</p>
+						<img src='./UploadedImages/$image'>
+						<p>Uploader: $uploader</p>
+					</div>
 					
 					
-					
-					<form method='post'>
+					<form method='post' id='commentField'>
 						<h2>Comment</h2>
 						<textarea name='comment' id='comment' cols='40' rows='4'></textarea><br>
 						<input type='submit' name='PostComment' value='Posta'>
 					</form>
 					$editCommentTextField
 					
-					<h3>Comments</h3>
+					<div id='pageNav'><h3>Comments</h3></div>
 					<div id='CommentBox'>
 						
 						$implodedArrayComment
 						
+					</div>
 					</div>
 				</body>
 				</html>

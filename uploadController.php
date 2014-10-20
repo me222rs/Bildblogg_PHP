@@ -22,8 +22,21 @@ require_once 'viewHTML.php';
 			$msg = "";
 		  	if(isset($_SESSION['login'])){
 		  		
-			
-				$msg = $this->uploadModel->SaveImageToFolder();
+				$filename = $this->uploadModel->GetFilename();
+				$filesize = $this->uploadModel->GetFileSize();
+				echo $filesize;
+				$msg = $this->uploadViewHTML->ValidateFilesize($filesize);
+				
+				if($msg == ""){
+					$msg = $this->uploadViewHTML->Validate($filename);
+				}
+				//echo ">>>" . $msg . "<<<";
+				
+				if($msg == "" && $msg != "Filen är för stor!" || $msg == "" && $msg != "Filnamnet är för långt!"){
+					echo "Bilden laddades upp";
+					$msg = $this->uploadModel->SaveImageToFolder();
+				}
+				
 		  	
 
 			

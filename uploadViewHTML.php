@@ -12,6 +12,7 @@
 				<html>
 				<head>
 					<meta charset=UTF-8>
+					<link rel='stylesheet' type='text/css' href='Css/styles1.css'>
 					<title>Upload some shit</title>
 				</head>
 				<body>
@@ -21,6 +22,7 @@
 					
 					<label for='file'>File:</label>
 					<input type='file' name='filename'><br>
+					
 					<input type='submit' name='upload' value='Upload'>
 					</form>
 				
@@ -30,6 +32,26 @@
 		";
         }
 		
+		}
+		
+		public function ValidateFilesize($filesize){
+			if($filesize > 26214400){
+				echo "filen är för stor";
+				return "Filen är för stor!";
+			}
+			return "";
+		}
+		
+		public function Validate($filename){
+			
+			if(strlen($filename) > 40){
+				echo $filename;
+				return "Filnamnet är för långt!";
+			}else{
+				return "";
+			}
+
+			
 		}
 		
 		public function didUserPressUpload(){
