@@ -163,16 +163,21 @@ class galleryViewHTML{
 				
 				
 				if($this->didUserPressPostEditedComment() == TRUE && isset($_SESSION['login']) && $_SESSION['login'] == $commentArray[$commentID]['user']){
+					
 					$commentValue = $this->GetEditValueFromTextbox();
+					$validMessage = $this->ValidateComment($this->didUserPressPostComment());
+					if($validMessage == ""){
+						$success = $this->galleryModel->EditComment($commentArray[$commentID]['commentID'], $commentValue);
+						if($success == TRUE){
+							header('Location: galleryView.php?gallery&image=' . $displayedImage);
+						}
+					}
 					//$commentID = 
 					//echo $commentValue;
 					//echo "kommer in i bajs";
 					//echo $commentID;
 					//echo $commentArray[$commentID]['commentID'];
-					$success = $this->galleryModel->EditComment($commentArray[$commentID]['commentID'], $commentValue);
-					if($success == TRUE){
-						header('Location: galleryView.php?gallery&image=' . $displayedImage);
-					}
+					
 					//header('Location: galleryView.php?gallery&image=' . $displayedImage);
 					//unset($_SESSION['bajs']);
 					//if($this->didUserPressPostEditedComment() == TRUE){

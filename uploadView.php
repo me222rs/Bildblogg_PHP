@@ -8,7 +8,4 @@ session_start();
 $uploadController = new uploadController();
 $uploadBody = $uploadController->doUpload();
 
-//$body = new uploadViewHTML();
-//$body->echoHTML($uploadBody);
-
 

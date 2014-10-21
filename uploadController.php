@@ -10,6 +10,7 @@ require_once 'viewHTML.php';
           private $uploadModel;
 		  private $viewHTML;
 		  private $model;
+		  private $msg = "";
 		  
           public function __construct() {
           	  $this->model = new modelLogin();			
@@ -19,22 +20,22 @@ require_once 'viewHTML.php';
           }
 		  
 		  public function doUpload(){
-			$msg = "";
+			//$msg = "";
 		  	if(isset($_SESSION['login'])){
 		  		
 				$filename = $this->uploadModel->GetFilename();
 				$filesize = $this->uploadModel->GetFileSize();
-				echo $filesize;
-				$msg = $this->uploadViewHTML->ValidateFilesize($filesize);
+				//echo $filesize;
+				$this->msg = $this->uploadViewHTML->ValidateFilesize($filesize);
 				
-				if($msg == ""){
-					$msg = $this->uploadViewHTML->Validate($filename);
+				if($this->msg == ""){
+					$this->msg = $this->uploadViewHTML->Validate($filename);
 				}
 				//echo ">>>" . $msg . "<<<";
 				
-				if($msg == "" && $msg != "Filen är för stor!" || $msg == "" && $msg != "Filnamnet är för långt!"){
+				if($this->msg == "" && $this->msg != "Filen är för stor!" || $this->msg == "" && $this->msg != "Filnamnet är för långt!"){
 					echo "Bilden laddades upp";
-					$msg = $this->uploadModel->SaveImageToFolder();
+					$this->msg = $this->uploadModel->SaveImageToFolder();
 				}
 				
 		  	
@@ -43,7 +44,7 @@ require_once 'viewHTML.php';
 			
 			
 			}
-		  	return $this->uploadViewHTML->echoHTML($msg);
+		  	return $this->uploadViewHTML->echoHTML($this->msg);
 			
 			
 		  }

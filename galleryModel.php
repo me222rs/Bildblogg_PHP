@@ -125,6 +125,10 @@ require_once 'modelLogin.php';
 				
 			}
 			
+			public function GetLoggedInUser(){
+				return $_SESSION['login'];
+			}
+			
 			public function DeleteImageFromFolder($displayedImage){
 				
 				@unlink('UploadedImages/'.$displayedImage);
@@ -165,6 +169,7 @@ require_once 'modelLogin.php';
 				
 				$dir = "./UploadedImages/";
 
+			
 				
 				
 				

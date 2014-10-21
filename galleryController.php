@@ -10,6 +10,8 @@ require_once 'viewHTML.php';
           private $galleryModel;
 		  private $viewHTML;
 		  private $model;
+		  private $msg = "";
+		  private $imagesArray = array();
 		  
           public function __construct() {
           	  $this->model = new modelLogin();			
@@ -19,17 +21,18 @@ require_once 'viewHTML.php';
           }
 		  
 		  public function doShowGallery(){
-		  	$msg = "";
-			$images = "";
-		  	if(isset($_SESSION['login'])){
+		  	//$msg = "";
+		  	$loggedInUser = $this->galleryModel->GetLoggedInUser();
+			//$images = "";
+		  	if(isset($loggedInUser)){
 		  		
 			
-				$imagesArray = $this->galleryModel->ShowAllImages();
+				$this->imagesArray = $this->galleryModel->ShowAllImages();
 		  	
 				
 			
 			
-			return $this->galleryViewHTML->echoHTML($imagesArray);
+			return $this->galleryViewHTML->echoHTML($this->imagesArray);
 			}
 		  	
 			
