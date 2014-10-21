@@ -3,39 +3,47 @@
 require_once 'modelLogin.php';
 	class galleryModel {
 		private $model;
-		private $connectionString = "mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', ''";
-		
+		private $connectionString = "mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8";
+		private $connectionUsername = "root";
+		private $connectionPassword = "";
+		private $db;
+		private $stmt;
+		private $commentID;
+		private $comment;
+		private $displayedImage;
+		private $user;
 		
 	
    	 		public function __construct(){
-        		$this->model = new modelLogin();	
+        		$this->model = new modelLogin();
+				$this->db = new PDO($this->connectionString, $this->connectionUsername, $this->connectionPassword);	
     		}
 			
+		public function SaveValidationMessage($validMessage){
+			$_SESSION['validationMessage'] = $validMessage;
 			
-			// public function UnsetJavascriptMessage(){
-				// $_SESSION['javascriptMessage'] == "";
-			// }
-// 			
-			// public function SetJavascriptMessage($javascriptMessage){
-				// $_SESSION['javascriptMessage'] = "<script>alert('$javascriptMessage')</script>";
-			// }
-// 			
-			// public function GetJavascriptMessage(){
-				// return $_SESSION['javascriptMessage'] = "<script>alert('$javascriptMessage')</script>";
-			// }
-			
+		}
+		
+		public function GetValidationMessage(){
+			return $_SESSION['validationMessage'];
+		}
+		
+		public function UnsetValidationMessage(){
+			$_SESSION['validationMessage'] = NULL;
+		}	
 			
 			public function GetUploader($loggedInUser){
 
 				
 				$returnString = "";
 				
-				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				//$db = new PDO($this->connectionString, $this->connectionUsername, $this->connectionPassword);
+				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				
-				$stmt = $db->prepare("SELECT upLoaderID FROM images WHERE imageName=?");
-				$stmt->execute(array($loggedInUser));
+				$this->stmt = $this->db->prepare("SELECT upLoaderID FROM images WHERE imageName=?");
+				$this->stmt->execute(array($loggedInUser));
 				
-				$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$rows = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
 				//var_dump($rows);
 				//echo $rows[0];
 				
@@ -50,26 +58,32 @@ require_once 'modelLogin.php';
 			public function GetCommentToEdit($commentID){
 				//echo $commentID;
 				
-				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
-				$stmt = $db->prepare("SELECT comment FROM comments WHERE commentID=:commentID");
-				$stmt->execute(array(':commentID' => $commentID));
-				$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				$this->stmt = $this->db->prepare("SELECT comment FROM comments WHERE commentID=:commentID");
+				$this->stmt->execute(array(':commentID' => $commentID));
+				$rows = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
 				return $rows[0]['comment'];
 			}
 			
 			public function EditComment($commentID, $comment){
 				//Redigera kommentar man själv lagt upp
-				if($commentID != ""){
-					$_SESSION['commentID'] = $commentID;	
+				$this->commentID = $commentID;
+				$this->comment = $comment;
+				
+				if($this->commentID != ""){
+					$_SESSION['commentID'] = $this->commentID;	
 				}
-				if($comment != ""){
+				 if($this->commentID != ""){
+					 $_SESSION['commentUser'] == NULL;
+				 }
+				if($this->comment != ""){
 					echo "Kommer in i EditComment";
 				echo $_SESSION['commentID'];
-				echo $comment;
-				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
-				$stmt = $db->prepare("UPDATE comments SET comment=? WHERE commentID=?");
-				$stmt->execute(array($comment, $_SESSION['commentID']));
-				$affected_rows = $stmt->rowCount();
+				echo $this->comment;
+				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				$this->stmt = $this->db->prepare("UPDATE comments SET comment=? WHERE commentID=?");
+				$this->stmt->execute(array($this->comment, $_SESSION['commentID']));
+				$affected_rows = $this->stmt->rowCount();
 				if($affected_rows != ""){
 					return true;
 				} 
@@ -83,44 +97,47 @@ require_once 'modelLogin.php';
 			
 			public function DeleteComment($commentID){
 				//Ta bort en kommentar man själv lagt upp
-				
-				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
-				$stmt = $db->prepare("DELETE FROM comments WHERE commentID=:commentID");
-				$stmt->bindValue(':commentID', $commentID, PDO::PARAM_STR);
-				$stmt->execute();
+				$this->commentID = $commentID;
+				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				$this->stmt = $this->db->prepare("DELETE FROM comments WHERE commentID=:commentID");
+				$this->stmt->bindValue(':commentID', $this->commentID, PDO::PARAM_STR);
+				$this->stmt->execute();
 			}
 			
 			public function PostComment($displayedImage, $comment, $user){
 				//Posta en kommentar till någons bild 
+				$this->displayedImage = $displayedImage;
+				$this->comment = $comment;
+				$this->user = $user;
 				
-				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				
-				$stmt = $db->prepare("INSERT INTO comments(comment,imageName,user) VALUES(:comment,:imageName,:user)");
-				$stmt->execute(array(':comment' => $comment, ':imageName' => $displayedImage, ':user' => $user));
+				$this->stmt = $this->db->prepare("INSERT INTO comments(comment,imageName,user) VALUES(:comment,:imageName,:user)");
+				$this->stmt->execute(array(':comment' => $this->comment, ':imageName' => $this->displayedImage, ':user' => $this->user));
 				
 			}
 			
 			public function GetCommentsFromDB($displayedImage){
 				//Hämta alla kommentarer till en bild
-				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
-				
+				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				$this->displayedImage = $displayedImage;
 				$rows = array();
 				
-				$stmt = $db->prepare("SELECT * FROM comments WHERE imageName=?");
-				$stmt->execute(array($displayedImage));
-				$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$this->stmt = $this->db->prepare("SELECT * FROM comments WHERE imageName=?");
+				$this->stmt->execute(array($this->displayedImage));
+				$rows = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
 				
 				return $rows;
 			}
 			
 			public function DeleteImageFromDB($displayedImage){
-				$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				$this->displayedImage = $displayedImage;
+				$this->stmt = $this->db->prepare("DELETE FROM images WHERE imageName=?");
+				$this->stmt->execute(array($this->displayedImage));
 				
-				$stmt = $db->prepare("DELETE FROM images WHERE imageName=?");
-				$stmt->execute(array($displayedImage));
-				
-				$stmt = $db->prepare("DELETE FROM comments WHERE imageName=?");
-				$stmt->execute(array($displayedImage));
+				$this->stmt = $this->db->prepare("DELETE FROM comments WHERE imageName=?");
+				$this->stmt->execute(array($this->displayedImage));
 				
 				
 			}
@@ -130,10 +147,10 @@ require_once 'modelLogin.php';
 			}
 			
 			public function DeleteImageFromFolder($displayedImage){
+				$this->displayedImage = $displayedImage;
+				@unlink('UploadedImages/'.$this->displayedImage);
 				
-				@unlink('UploadedImages/'.$displayedImage);
-				
-				$this->DeleteImageFromDB($displayedImage);
+				$this->DeleteImageFromDB($this->displayedImage);
 				
 			}
 			

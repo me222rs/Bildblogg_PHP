@@ -2,6 +2,23 @@
 	require_once 'galleryModel.php';
 class galleryViewHTML{
         private $galleryModel;
+		private $images = array();
+		private $postedComment;
+		private $implodedArray = array();
+		private $deleteButton = "";
+		private $deleteMessage = "";
+		private $loggedInUser;
+		private $commentArray = array();
+		private $uploader;
+		private $displayedImage;
+		private $deleteCommentButton;
+		private $editCommentButton;
+		private $comment = array();
+		private $commentID;
+		private $commentArrayLength;
+		private $commentValue;
+		private $validMessage;
+		
 		
 	public	function __construct() {
         $this->galleryModel = new galleryModel();
@@ -9,13 +26,14 @@ class galleryViewHTML{
 		//$this->uploadModel = new uploadModel();
 	}
 		
-		public function ValidateComment($comment){
+		public function ValidateComment(){
 			//if(strlen($comment) > 200){
 			//	echo "kommentaren är för lång";
 			//	return $comment;
 			//}
 			
-			if(strpos($comment,'<') !== false || strpos($comment,'>') !== false){
+			if(strpos($this->postedComment,'<') !== false || strpos($this->postedComment,'>') !== false){
+				echo "Innehåller otillåtna tecken";
 				//$strippedComment = filter_var($comment, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
 				return "The comment contains not valid characters!";
 			}
@@ -25,16 +43,17 @@ class galleryViewHTML{
 		
         public function echoHTML($body){
         	
-			$images = array();
+			//$images = array();
 			
         	if(isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE && $this->didUserPressImage() == FALSE){
 			
 			//Loopar igenom alla bilder och gör dom till klickbara länkar.
-			foreach($body as $value){
-				array_push($images, "<div class='gallerypics'><a href='galleryView.php?gallery&image=$value'><img src='./UploadedImages/$value'></a></div>");
+
+						foreach($body as $value){
+				array_push($this->images, "<div class='gallerypics'><a href='galleryView.php?gallery&image=$value'><img src='./UploadedImages/$value'></a></div>");
 			}
 			//Sätter ihop allt i arrayen för att sedan trycka ut det i html.
-			$implodedArray = implode("", $images);
+			$this->implodedArray = implode("", $this->images);
 			
             echo "
 				<!DOCTYPE html>
@@ -52,7 +71,7 @@ class galleryViewHTML{
 					
 					
 				 	<div id='galleryDiv'>
-						$implodedArray
+						$this->implodedArray
 					</div>
 					<footer><p>Mickes fotosida</p></footer>				
 					</div>
@@ -63,86 +82,87 @@ class galleryViewHTML{
 			
 			if($this->didUserPressImage() == TRUE && isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE){
 				echo $_SESSION['login'];
-				$deleteButton = "";
-				$loggedInUser = $_SESSION['login'];
-				$uploader = $this->galleryModel->GetUploader($this->getImageQueryString());
-				$displayedImage = $this->getImageQueryString();
-				$deleteMessage = "";
-				$commentArray = array();
 				
-				$commentArray = $this->galleryModel->GetCommentsFromDB($displayedImage);
+				$this->loggedInUser = $_SESSION['login'];
+				$this->uploader = $this->galleryModel->GetUploader($this->getImageQueryString());
+				$this->displayedImage = $this->getImageQueryString();
+				
+				
+				
+				$this->commentArray = $this->galleryModel->GetCommentsFromDB($this->displayedImage);
 
-				$comment = array();
-				$commentDate = array();
+				$this->comment = array();
+				//$commentDate = array();
 
-				$commentArrayLength = count($commentArray);
+				$this->commentArrayLength = count($this->commentArray);
 				
 				
-				for($i = 0; $i < $commentArrayLength; $i++){
+				for($i = 0; $i < $this->commentArrayLength; $i++){
 						//Visar knappar ifall att den inloggade användaren är den som lagt upp kommentaren
 					
-					if($commentArray[$i]['user'] == $loggedInUser || $commentArray[$i]['user'] != "Admin"){
-						$deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
+					if($this->commentArray[$i]['user'] == $this->loggedInUser || $this->commentArray[$i]['user'] != "Admin"){
+						$this->deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
 						
-						$editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
+						$this->editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
 					}
 					
 					
 					//Visar alla knappar för admin
-					if($commentArray[$i]['user'] == "Admin" && $commentArray[$i]['user'] == $loggedInUser){
-						$deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
+					if($this->commentArray[$i]['user'] == "Admin" && $this->commentArray[$i]['user'] == $this->loggedInUser){
+						$this->deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
 						
-						$editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
+						$this->editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
 					}
 					
 					//array med alla kommentarer redo för utskrift
-					array_push($comment, "<form name='comments' method='post' id='comments'> 
+					array_push($this->comment, "<form name='comments' method='post' id='comments'> 
 											<input type='hidden' name='deleteCommentshit" , "$i", "' value='", "$i" , "'>"
-											."  $deleteCommentButton $editCommentButton" , "<p><b>" , $commentArray[$i]['user'] , "</b></p>", "<p>" 
-					, $commentArray[$i]['comment'], "</p><br><em>", $commentArray[$i]['date'], "</em></form>");
+											."  $this->deleteCommentButton $this->editCommentButton" , "<p><b>" , $this->commentArray[$i]['user'] , "</b></p>", "<p>" 
+					, $this->commentArray[$i]['comment'], "</p><br><em>", $this->commentArray[$i]['date'], "</em></form>");
 					
-					$deleteCommentButton = "";
-					$editCommentButton = "";
+					$this->deleteCommentButton = "";
+					$this->editCommentButton = "";
 					//array_push($commentDate, $commentArray[$i]['date']);
 				}
 
-				$implodedArrayComment = implode("", $comment);
+				$implodedArrayComment = implode("", $this->comment);
 				//$implodedArrayDate = implode("", $commentDate);
 				
 				//Ta bort en bild
-				if($loggedInUser == $uploader && $uploader != "" || $loggedInUser == "Admin" && $uploader != ""){
-					$deleteButton = "<form action='' method='post'><input type='submit' name='delete' value='Ta bort'><br></form>";	
+				if($this->loggedInUser == $this->uploader && $this->uploader != "" || $this->loggedInUser == "Admin" && $this->uploader != ""){
+					$this->deleteButton = "<form action='' method='post'><input type='submit' name='delete' value='Ta bort'><br></form>";	
 				}
 				
 				
 				
 				
-				if($this->didUSerPressDelete() && $uploader == $loggedInUser || $this->didUSerPressDelete() && $loggedInUser == "Admin"){
-					$this->galleryModel->DeleteImageFromFolder($displayedImage);
+				if($this->didUSerPressDelete() && $this->uploader == $this->loggedInUser || $this->didUSerPressDelete() && $this->loggedInUser == "Admin"){
+					$this->galleryModel->DeleteImageFromFolder($this->displayedImage);
 					header('Location: galleryView.php?gallery');
-				}elseif($this->didUSerPressDelete() && $uploader != $loggedInUser){
-					$deleteMessage = "Image could not be removed, retard...";
+				}elseif($this->didUSerPressDelete() && $this->uploader != $this->loggedInUser){
+					$this->deleteMessage = "Image could not be removed, retard...";
 				}
 				
 				if($this->didUserPressPostComment() != ""){
-					$validMessage = $this->ValidateComment($this->didUserPressPostComment());
-					if($validMessage == ""){
+					$this->postedComment = $this->didUserPressPostComment();
+					$this->validMessage = $this->ValidateComment();
+					if($this->validMessage == ""){
 						//$this->galleryModel->SetJavascriptMessage($validMessage);
-						$this->galleryModel->PostComment($displayedImage, $this->didUserPressPostComment(), $loggedInUser);
-						header('Location: galleryView.php?gallery&image=' . $displayedImage);
+						$this->galleryModel->PostComment($this->displayedImage, $this->didUserPressPostComment(), $this->loggedInUser);
+						header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
 					}
 					
 				}
-				$commentID = $this->didUserPressDeleteComment($commentArrayLength);
+				$this->commentID = $this->didUserPressDeleteComment();
 				
 				//Detta körs inte om en användare ändrat värde på hiddenfield i html koden
-				if($commentID != "" && $_SESSION['login'] == $commentArray[$commentID]['user'] || $commentID != "" && $_SESSION['login'] == "Admin"){
-					$this->galleryModel->DeleteComment($commentArray[$commentID]['commentID']);
+				if($this->commentID != "" && $_SESSION['login'] == $this->commentArray[$this->commentID]['user'] || $this->commentID != "" && $_SESSION['login'] == "Admin"){
+					$this->galleryModel->DeleteComment($this->commentArray[$this->commentID]['commentID']);
 					
-					header('Location: galleryView.php?gallery&image=' . $displayedImage);
+					header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
 				}
 				
-				$commentID = $this->didUserPressEditComment($commentArrayLength);
+				$this->commentID = $this->didUserPressEditComment();
 				//echo "commentID=";
 				//echo $commentID;
 				
@@ -152,48 +172,58 @@ class galleryViewHTML{
 					//echo $_SESSION['bajs']; 
 				//}
 				 
-				if($commentID != ""){
+				if($this->commentID != ""){
 					//$this->galleryModel->EditComment($commentID, $commentValue);
-					$commentToEditValue = $this->galleryModel->GetCommentToEdit($commentArray[$commentID]['commentID']);
+					$commentToEditValue = $this->galleryModel->GetCommentToEdit($this->commentArray[$this->commentID]['commentID']);
 					$editCommentTextField = "<form method='post'>
 												<input type='text' name='editCommentTextField' value='$commentToEditValue'></input>
 												<input type='submit' name='newComment' value='Post'></input>
 											</form>";
 				}
+			
+				//if($_SESSION['commentUser'] != ""){
+					//$_SESSION['commentUser'] = $commentArray[$commentID]['user'];
+				//}
 				
-				
-				if($this->didUserPressPostEditedComment() == TRUE && isset($_SESSION['login']) && $_SESSION['login'] == $commentArray[$commentID]['user']){
-					
-					$commentValue = $this->GetEditValueFromTextbox();
-					$validMessage = $this->ValidateComment($this->didUserPressPostComment());
-					if($validMessage == ""){
-						$success = $this->galleryModel->EditComment($commentArray[$commentID]['commentID'], $commentValue);
+				if($_SESSION['login'] == $_SESSION['commentUser'] || $_SESSION['login'] == "Admin"){
+					echo "BAJS";
+					$this->postedComment = $this->didUserPressPostEditedComment();
+					$this->commentValue = $this->GetEditValueFromTextbox();
+					$this->validMessage = $this->ValidateComment();
+					if($this->validMessage == ""){
+						$success = $this->galleryModel->EditComment($this->commentArray[$this->commentID]['commentID'], $this->commentValue);
 						if($success == TRUE){
-							header('Location: galleryView.php?gallery&image=' . $displayedImage);
+							header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
 						}
 					}
-					//$commentID = 
-					//echo $commentValue;
-					//echo "kommer in i bajs";
-					//echo $commentID;
-					//echo $commentArray[$commentID]['commentID'];
 					
-					//header('Location: galleryView.php?gallery&image=' . $displayedImage);
-					//unset($_SESSION['bajs']);
-					//if($this->didUserPressPostEditedComment() == TRUE){
-						//unset($_SESSION['bajs']);
-					//}
-					//header('Location: galleryView.php?gallery&image=' . $displayedImage);
-					
-					
-					//if($this->didUserPressEditComment2() == TRUE){
-						//unset($_SESSION['bajs']);
-				//}
+						
+				}
+				
+				if($this->didUserPressPostEditedComment() == TRUE && isset($_SESSION['login']) && $_SESSION['login'] == $this->commentArray[$this->commentID]['user']){
+					$_SESSION['commentUser'] = $this->commentArray[$this->commentID]['user'];
+					echo "KOmmer in i edit post";
+									echo ">>>>";
+				echo $this->commentArray[$this->commentID]['user'];
+				echo "<<<<";
+					$this->commentValue = $this->GetEditValueFromTextbox();
+					echo $this->commentValue;
+					$this->validMessage = $this->ValidateComment($this->didUserPressPostComment());
+					if($this->validMessage == ""){
+						$this->galleryModel->SaveValidationMessage($this->validMessage);
+						$success = $this->galleryModel->EditComment($this->commentArray[$this->commentID]['commentID'], $this->commentValue);
+						if($success == TRUE){
+							header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
+						}
+						
+					}
+	
 					
 				}
 				
 				
-				
+				$validateMsg = $this->galleryModel->GetValidationMessage();
+				$this->galleryModel->UnsetValidationMessage();
 				//$jsMessage = $this->galleryModel->GetJavascriptMessage();
 				//$this->galleryModel->UnsetJavascriptMessage();
 				$image = $this->getImageQueryString();
@@ -213,13 +243,13 @@ class galleryViewHTML{
 					<a href='galleryView.php?gallery'>Tillbaka</a><br>
 					
 					<div id='oneImage'>	
-				 		$deleteButton
-				 		$deleteMessage
+				 		$this->deleteButton
+				 		$this->deleteMessage
 						<img src='./UploadedImages/$image'>
-						<p>Uploader: $uploader</p>
+						<p>Uploader: $this->uploader</p>
 					</div>
 					
-					
+					$validateMsg
 					<form method='post' id='commentField'>
 						<h2>Comment</h2>
 						<textarea name='comment' id='comment' cols='40' rows='4'></textarea><br>
@@ -243,12 +273,14 @@ class galleryViewHTML{
 
 		
 		public function GetEditValueFromTextbox(){
+			echo "Hämtar value från textbox";
+			echo $_POST['editCommentTextField'];
 			return $_POST['editCommentTextField'];
 		}
 		
 		public function didUserPressPostEditedComment(){
-			if(isset($_POST['newComment'])){
-				return TRUE;
+			if(isset($_POST['editCommentTextField'])){
+				return $_POST['editCommentTextField'];
 			}
 			return TRUE;
 		}
@@ -258,18 +290,18 @@ class galleryViewHTML{
 			}
 			return fALSE;
 		}
-		public function didUserPressEditComment($commentArrayLength){
+		public function didUserPressEditComment(){
 			echo "Tryckt på edit comment";
-			for ($i=0; $i < $commentArrayLength; $i++) { 
+			for ($i=0; $i < $this->commentArrayLength; $i++) { 
 				if(isset($_POST['editComment' .$i.''])){
 					return $_POST['deleteCommentshit'.$i.''];
 				}
 			}
 		}
 
-		public function didUserPressDeleteComment($commentArrayLength){
+		public function didUserPressDeleteComment(){
 			echo "Tryckt på delete comment";
-			for ($i=0; $i < $commentArrayLength; $i++) { 
+			for ($i=0; $i < $this->commentArrayLength; $i++) { 
 				if(isset($_POST['deleteComment' .$i.''])){
 					return $_POST['deleteCommentshit'.$i.''];
 				}
