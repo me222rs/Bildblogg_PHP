@@ -41,15 +41,14 @@ class galleryViewHTML{
 			return "";
 		}
 		
-        public function echoHTML($body){
-        	
+		public function echoHTMLGallery($body){
 			//$images = array();
 			
         	if(isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE && $this->didUserPressImage() == FALSE){
 			
 			//Loopar igenom alla bilder och gör dom till klickbara länkar.
 
-						foreach($body as $value){
+			foreach($body as $value){
 				array_push($this->images, "<div class='gallerypics'><a href='galleryView.php?gallery&image=$value'><img src='./UploadedImages/$value'></a></div>");
 			}
 			//Sätter ihop allt i arrayen för att sedan trycka ut det i html.
@@ -79,9 +78,14 @@ class galleryViewHTML{
 				</html>
 		";
         }
+		}
+		
+        public function echoHTML($body){
+        	
 			
-			if($this->didUserPressImage() == TRUE && isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE){
-				echo $_SESSION['login'];
+			
+			//if($this->didUserPressImage() == TRUE && isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE){
+				
 				
 				$this->loggedInUser = $_SESSION['login'];
 				$this->uploader = $this->galleryModel->GetUploader($this->getImageQueryString());
@@ -128,31 +132,35 @@ class galleryViewHTML{
 				$implodedArrayComment = implode("", $this->comment);
 				//$implodedArrayDate = implode("", $commentDate);
 				
-				//Ta bort en bild
+				//Visa ta bort en bild-knapp
 				if($this->loggedInUser == $this->uploader && $this->uploader != "" || $this->loggedInUser == "Admin" && $this->uploader != ""){
 					$this->deleteButton = "<form action='' method='post'><input type='submit' name='delete' value='Ta bort'><br></form>";	
 				}
 				
 				
 				
+				//Ta bort den bild som visas
+				// if($this->didUSerPressDelete() && $this->uploader == $this->loggedInUser || $this->didUSerPressDelete() && $this->loggedInUser == "Admin"){
+					// $this->galleryModel->DeleteImageFromFolder($this->displayedImage);
+					// header('Location: galleryView.php?gallery');
+				// }elseif($this->didUSerPressDelete() && $this->uploader != $this->loggedInUser){
+					// $this->deleteMessage = "Image could not be removed, retard...";
+				// }
 				
-				if($this->didUSerPressDelete() && $this->uploader == $this->loggedInUser || $this->didUSerPressDelete() && $this->loggedInUser == "Admin"){
-					$this->galleryModel->DeleteImageFromFolder($this->displayedImage);
-					header('Location: galleryView.php?gallery');
-				}elseif($this->didUSerPressDelete() && $this->uploader != $this->loggedInUser){
-					$this->deleteMessage = "Image could not be removed, retard...";
-				}
 				
-				if($this->didUserPressPostComment() != ""){
-					$this->postedComment = $this->didUserPressPostComment();
-					$this->validMessage = $this->ValidateComment();
-					if($this->validMessage == ""){
-						//$this->galleryModel->SetJavascriptMessage($validMessage);
-						$this->galleryModel->PostComment($this->displayedImage, $this->didUserPressPostComment(), $this->loggedInUser);
-						header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
-					}
-					
-				}
+				//Lägg till kommentar
+				// if($this->didUserPressPostComment() != ""){
+					// $this->postedComment = $this->didUserPressPostComment();
+					// $this->validMessage = $this->ValidateComment();
+					// if($this->validMessage == ""){
+						// //$this->galleryModel->SetJavascriptMessage($validMessage);
+						// $this->galleryModel->PostComment($this->displayedImage, $this->didUserPressPostComment(), $this->loggedInUser);
+						// header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
+					// }
+// 					
+				// }
+				
+				
 				$this->commentID = $this->didUserPressDeleteComment();
 				
 				//Detta körs inte om en användare ändrat värde på hiddenfield i html koden
@@ -162,16 +170,7 @@ class galleryViewHTML{
 					header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
 				}
 				
-				$this->commentID = $this->didUserPressEditComment();
-				//echo "commentID=";
-				//echo $commentID;
-				
-				//if(!isset($_SESSION['bajs'])){
-					//$_SESSION['bajs'] = $commentID;
-					//echo "test=";
-					//echo $_SESSION['bajs']; 
-				//}
-				 
+				$this->commentID = $this->didUserPressEditComment(); 
 				if($this->commentID != ""){
 					//$this->galleryModel->EditComment($commentID, $commentValue);
 					$commentToEditValue = $this->galleryModel->GetCommentToEdit($this->commentArray[$this->commentID]['commentID']);
@@ -181,12 +180,10 @@ class galleryViewHTML{
 											</form>";
 				}
 			
-				//if($_SESSION['commentUser'] != ""){
-					//$_SESSION['commentUser'] = $commentArray[$commentID]['user'];
-				//}
+				
 				
 				if($_SESSION['login'] == $_SESSION['commentUser'] || $_SESSION['login'] == "Admin"){
-					echo "BAJS";
+					
 					$this->postedComment = $this->didUserPressPostEditedComment();
 					$this->commentValue = $this->GetEditValueFromTextbox();
 					$this->validMessage = $this->ValidateComment();
@@ -267,8 +264,8 @@ class galleryViewHTML{
 				</body>
 				</html>
 		";
-			}
-		
+			
+		//}
 		}
 
 		
