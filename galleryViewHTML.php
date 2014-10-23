@@ -18,28 +18,29 @@ class galleryViewHTML{
 		private $commentArrayLength;
 		private $commentValue;
 		private $validMessage;
+		private $commentArray2;
 		
 		
 	public	function __construct() {
         $this->galleryModel = new galleryModel();
-		//$this->uploadView = new uploadView();
-		//$this->uploadModel = new uploadModel();
 	}
 		
 		public function ValidateComment(){
-			//if(strlen($comment) > 200){
+			echo "Kommer in i validate";
+			//if(strlen($postedComment) > 200){
 			//	echo "kommentaren är för lång";
-			//	return $comment;
+			//	return $postedComment;
 			//}
 			
 			if(strpos($this->postedComment,'<') !== false || strpos($this->postedComment,'>') !== false){
-				echo "Innehåller otillåtna tecken";
-				//$strippedComment = filter_var($comment, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+				
 				return "The comment contains not valid characters!";
 			}
-			//echo "kommentaren är ok";
+			
 			return "";
 		}
+		
+		
 		
 		public function echoHTMLGallery($body){
 			//$images = array();
@@ -86,93 +87,52 @@ class galleryViewHTML{
 			
 			//if($this->didUserPressImage() == TRUE && isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE){
 				
-				
+				//Sparar vem som är inloggad
 				$this->loggedInUser = $_SESSION['login'];
+				
+				//Hämtar vem som laddat upp bilden som visas
 				$this->uploader = $this->galleryModel->GetUploader($this->getImageQueryString());
+				
+				//Hämtar bildens namn
 				$this->displayedImage = $this->getImageQueryString();
 				
+				//Innehåller en array med värden som ska jämföras med saker nedan för att rätt värden ska visas bland kommentarerna
+				$this->commentArray = $this->galleryModel->GetCommentSession();
 				
-				
-				$this->commentArray = $this->galleryModel->GetCommentsFromDB($this->displayedImage);
-
-				$this->comment = array();
-				//$commentDate = array();
-
+				//Kollar längden på arrayen ovanför.
 				$this->commentArrayLength = count($this->commentArray);
 				
+				//Hämtar ut alla kommentarer från databasen som en string 
+				$this->commentArray2 = $this->galleryModel->GetCommentsFromDB($this->displayedImage);
 				
-				for($i = 0; $i < $this->commentArrayLength; $i++){
-						//Visar knappar ifall att den inloggade användaren är den som lagt upp kommentaren
-					
-					if($this->commentArray[$i]['user'] == $this->loggedInUser || $this->commentArray[$i]['user'] != "Admin"){
-						$this->deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
-						
-						$this->editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
-					}
-					
-					
-					//Visar alla knappar för admin
-					if($this->commentArray[$i]['user'] == "Admin" && $this->commentArray[$i]['user'] == $this->loggedInUser){
-						$this->deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
-						
-						$this->editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
-					}
-					
-					//array med alla kommentarer redo för utskrift
-					array_push($this->comment, "<form name='comments' method='post' id='comments'> 
-											<input type='hidden' name='deleteCommentshit" , "$i", "' value='", "$i" , "'>"
-											."  $this->deleteCommentButton $this->editCommentButton" , "<p><b>" , $this->commentArray[$i]['user'] , "</b></p>", "<p>" 
-					, $this->commentArray[$i]['comment'], "</p><br><em>", $this->commentArray[$i]['date'], "</em></form>");
-					
+				
+				
 					$this->deleteCommentButton = "";
 					$this->editCommentButton = "";
-					//array_push($commentDate, $commentArray[$i]['date']);
-				}
-
-				$implodedArrayComment = implode("", $this->comment);
-				//$implodedArrayDate = implode("", $commentDate);
-				
+		
 				//Visa ta bort en bild-knapp
 				if($this->loggedInUser == $this->uploader && $this->uploader != "" || $this->loggedInUser == "Admin" && $this->uploader != ""){
 					$this->deleteButton = "<form action='' method='post'><input type='submit' name='delete' value='Ta bort'><br></form>";	
 				}
 				
-				
-				
-				//Ta bort den bild som visas
-				// if($this->didUSerPressDelete() && $this->uploader == $this->loggedInUser || $this->didUSerPressDelete() && $this->loggedInUser == "Admin"){
-					// $this->galleryModel->DeleteImageFromFolder($this->displayedImage);
-					// header('Location: galleryView.php?gallery');
-				// }elseif($this->didUSerPressDelete() && $this->uploader != $this->loggedInUser){
-					// $this->deleteMessage = "Image could not be removed, retard...";
-				// }
-				
-				
-				//Lägg till kommentar
-				// if($this->didUserPressPostComment() != ""){
-					// $this->postedComment = $this->didUserPressPostComment();
-					// $this->validMessage = $this->ValidateComment();
-					// if($this->validMessage == ""){
-						// //$this->galleryModel->SetJavascriptMessage($validMessage);
-						// $this->galleryModel->PostComment($this->displayedImage, $this->didUserPressPostComment(), $this->loggedInUser);
-						// header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
-					// }
-// 					
-				// }
-				
-				
+				//Borde byta namn på funktionen eftersom den inte returnerar true eller false utan vilken knapp som användaren tryckt på.
 				$this->commentID = $this->didUserPressDeleteComment();
-				
-				//Detta körs inte om en användare ändrat värde på hiddenfield i html koden
+				//Var tvungen till att lägga header location här för att ta bort kommentar, i controllern ville den inte köra ordentligt.
+				//Går endast att ta bort sina egna kommentarer även fast man ändrar hidden value. Någon annans kommentar går ej att ta bort.
 				if($this->commentID != "" && $_SESSION['login'] == $this->commentArray[$this->commentID]['user'] || $this->commentID != "" && $_SESSION['login'] == "Admin"){
-					$this->galleryModel->DeleteComment($this->commentArray[$this->commentID]['commentID']);
-					
 					header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
 				}
 				
+				
+				
+				
+				//TODO Skapa en echo som visar det vanliga html dokumentet
+				//Användaren trycker på edit så visas textbox med kommentaren ifyllt
 				$this->commentID = $this->didUserPressEditComment(); 
 				if($this->commentID != ""){
-					//$this->galleryModel->EditComment($commentID, $commentValue);
+					$_SESSION['editCommentID'] = $this->commentID;
+					echo "session i view är: ";
+					echo $_SESSION['editCommentID'];
 					$commentToEditValue = $this->galleryModel->GetCommentToEdit($this->commentArray[$this->commentID]['commentID']);
 					$editCommentTextField = "<form method='post'>
 												<input type='text' name='editCommentTextField' value='$commentToEditValue'></input>
@@ -180,49 +140,11 @@ class galleryViewHTML{
 											</form>";
 				}
 			
-				
-				
-				if($_SESSION['login'] == $_SESSION['commentUser'] || $_SESSION['login'] == "Admin"){
-					
-					$this->postedComment = $this->didUserPressPostEditedComment();
-					$this->commentValue = $this->GetEditValueFromTextbox();
-					$this->validMessage = $this->ValidateComment();
-					if($this->validMessage == ""){
-						$success = $this->galleryModel->EditComment($this->commentArray[$this->commentID]['commentID'], $this->commentValue);
-						if($success == TRUE){
-							header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
-						}
-					}
-					
-						
-				}
-				
-				if($this->didUserPressPostEditedComment() == TRUE && isset($_SESSION['login']) && $_SESSION['login'] == $this->commentArray[$this->commentID]['user']){
-					$_SESSION['commentUser'] = $this->commentArray[$this->commentID]['user'];
-					echo "KOmmer in i edit post";
-									echo ">>>>";
-				echo $this->commentArray[$this->commentID]['user'];
-				echo "<<<<";
-					$this->commentValue = $this->GetEditValueFromTextbox();
-					echo $this->commentValue;
-					$this->validMessage = $this->ValidateComment($this->didUserPressPostComment());
-					if($this->validMessage == ""){
-						$this->galleryModel->SaveValidationMessage($this->validMessage);
-						$success = $this->galleryModel->EditComment($this->commentArray[$this->commentID]['commentID'], $this->commentValue);
-						if($success == TRUE){
-							header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
-						}
-						
-					}
-	
-					
-				}
+			
 				
 				
 				$validateMsg = $this->galleryModel->GetValidationMessage();
 				$this->galleryModel->UnsetValidationMessage();
-				//$jsMessage = $this->galleryModel->GetJavascriptMessage();
-				//$this->galleryModel->UnsetJavascriptMessage();
 				$image = $this->getImageQueryString();
 				
 				echo "
@@ -257,7 +179,7 @@ class galleryViewHTML{
 					<div id='pageNav'><h3>Comments</h3></div>
 					<div id='CommentBox'>
 						
-						$implodedArrayComment
+						$this->commentArray2
 						
 					</div>
 					</div>
@@ -291,6 +213,7 @@ class galleryViewHTML{
 			echo "Tryckt på edit comment";
 			for ($i=0; $i < $this->commentArrayLength; $i++) { 
 				if(isset($_POST['editComment' .$i.''])){
+					$_SESSION['commentEditID'] = $_POST['editCommentshit' . $i . ''];
 					return $_POST['deleteCommentshit'.$i.''];
 				}
 			}
@@ -300,14 +223,10 @@ class galleryViewHTML{
 			echo "Tryckt på delete comment";
 			for ($i=0; $i < $this->commentArrayLength; $i++) { 
 				if(isset($_POST['deleteComment' .$i.''])){
+					$_SESSION['commentDeleteID'] = $_POST['deleteCommentshit' . $i . ''];
 					return $_POST['deleteCommentshit'.$i.''];
 				}
 			}
-			// if(isset($_POST['deleteComment0'])){
-				// echo "Tryckt på Ta bort kommentar!";
-				// var_dump($_POST);
-				// return $_POST['deleteCommentshit0'];
-			// }
 		}
 		
 		public function didUserPressPostComment(){

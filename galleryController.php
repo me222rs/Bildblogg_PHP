@@ -25,7 +25,7 @@ require_once 'viewHTML.php';
 		  	$loggedInUser = $this->galleryModel->GetLoggedInUser();
 			//$images = "";
 			
-			
+			//$commentArray = $_SESSION['commentArray'];
 			//Visar alla bilder
 		  	if(isset($loggedInUser) && $this->galleryViewHTML->didUserPressGallery() == TRUE && $this->galleryViewHTML->didUserPressImage() == FALSE){
 		  		
@@ -66,25 +66,56 @@ require_once 'viewHTML.php';
 					header('Location: galleryView.php?gallery');
 				}
 				
-				// //Ta bort kommentaren du tryckte på
-				// if($this->galleryViewHTML->didUserPressDeleteComment() == ""){
-// 					
-					// $commentID = 0;
-				// echo">>>>";
-				// echo $commentID;
-				// $commentArray = array();
-				// $commentArray = $this->galleryModel->GetCommentsFromDB($image);
-// 				
-				// //Detta körs inte om en användare ändrat värde på hiddenfield i html koden
-				// if($commentID != "" && $loggedInUser == $commentArray[$commentID]['user'] || $commentID != "" && $loggedInUser == "Admin"){
-					// $this->galleryModel->DeleteComment($commentArray[$commentID]['commentID']);
-// 					
-					// header('Location: galleryView.php?gallery&image=' . $image);
-				// }
-// 					
-// 					
-// 					
-				// }
+				
+				
+				//Ta bort kommentaren du tryckte på
+				if(isset($_SESSION['commentDeleteID'])){
+					$commentArray = $_SESSION['commentArray'];
+					//$commentID = $this->galleryViewHTML->didUserPressDeleteComment();
+				$cunt = 0;
+				echo">>>>";
+				echo $commentID;
+				
+					
+				
+				//Detta körs inte om en användare ändrat värde på hiddenfield i html koden
+				if($_SESSION['commentDeleteID'] != "" && $loggedInUser == $commentArray[$_SESSION['commentDeleteID']]['user'] || $_SESSION['commentDeleteID'] != "" && $loggedInUser == "Admin"){
+					echo "session är: ";
+					echo $_SESSION['commentID'];
+						
+					$this->galleryModel->DeleteComment($commentArray[$_SESSION['commentDeleteID']]['commentID']);
+					$_SESSION['commentDeleteID'] = NULL;
+					
+					
+				}
+					
+					
+					
+				}
+				
+				
+				//Om en användare tryckt på redigera så kommer det läggas till en textbox på sidan som är ifylld med kommentarens värde.
+				if($this->galleryViewHTML->didUserPressPostEditedComment() == TRUE|| $_SESSION['login'] == "Admin" && $this->galleryViewHTML->didUserPressPostEditedComment() == TRUE){
+					echo "commentArray är: ";
+					$commentArray = $_SESSION['commentArray'];
+					
+					echo "session i controller är: ";
+					echo $_SESSION['editCommentID'];
+					//$commentsID = $commentArray[$_SESSION['editCommentID']]['commentID'];
+					$postedComment = $this->galleryViewHTML->didUserPressPostEditedComment();
+					$commentValue = $this->galleryViewHTML->GetEditValueFromTextbox();
+					$validMessage = $this->galleryViewHTML->ValidateComment();
+					echo $validMessage;
+					if($validMessage == ""){
+						echo "kommer in till spara edit comment";
+						$success = $this->galleryModel->EditComment($commentArray[$_SESSION['editCommentID']], $commentValue);
+						if($success == TRUE){
+							header('Location: galleryView.php?gallery&image=' . $image);
+						}
+					}
+					
+						
+				}
 				
 				
 				
