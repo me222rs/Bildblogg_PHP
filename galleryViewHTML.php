@@ -26,7 +26,8 @@ class galleryViewHTML{
 	}
 		
 		public function ValidateComment(){
-			echo "Kommer in i validate";
+			//TODO Fixa längden på poster
+			
 			//if(strlen($postedComment) > 200){
 			//	echo "kommentaren är för lång";
 			//	return $postedComment;
@@ -44,8 +45,9 @@ class galleryViewHTML{
 		
 		public function echoHTMLGallery($body){
 			//$images = array();
+			$this->loggedInUser = $this->galleryModel->GetLoggedInUser();
 			
-        	if(isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE && $this->didUserPressImage() == FALSE){
+        	if(isset($this->loggedInUser) && $this->didUserPressGallery() == TRUE && $this->didUserPressImage() == FALSE){
 			
 			//Loopar igenom alla bilder och gör dom till klickbara länkar.
 
@@ -88,7 +90,7 @@ class galleryViewHTML{
 			//if($this->didUserPressImage() == TRUE && isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE){
 				
 				//Sparar vem som är inloggad
-				$this->loggedInUser = $_SESSION['login'];
+				$this->loggedInUser = $this->galleryModel->GetLoggedInUser();
 				
 				//Hämtar vem som laddat upp bilden som visas
 				$this->uploader = $this->galleryModel->GetUploader($this->getImageQueryString());
@@ -119,7 +121,7 @@ class galleryViewHTML{
 				$this->commentID = $this->didUserPressDeleteComment();
 				//Var tvungen till att lägga header location här för att ta bort kommentar, i controllern ville den inte köra ordentligt.
 				//Går endast att ta bort sina egna kommentarer även fast man ändrar hidden value. Någon annans kommentar går ej att ta bort.
-				if($this->commentID != "" && $_SESSION['login'] == $this->commentArray[$this->commentID]['user'] || $this->commentID != "" && $_SESSION['login'] == "Admin"){
+				if($this->commentID != "" && $this->loggedInUser == $this->commentArray[$this->commentID]['user'] || $this->commentID != "" && $this->loggedInUser == "Admin"){
 					header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
 				}
 				
@@ -130,9 +132,8 @@ class galleryViewHTML{
 				//Användaren trycker på edit så visas textbox med kommentaren ifyllt
 				$this->commentID = $this->didUserPressEditComment(); 
 				if($this->commentID != ""){
-					$_SESSION['editCommentID'] = $this->commentID;
-					echo "session i view är: ";
-					echo $_SESSION['editCommentID'];
+					$this->galleryModel->SetEditCommentIDSession($this->commentID);
+
 					$commentToEditValue = $this->galleryModel->GetCommentToEdit($this->commentArray[$this->commentID]['commentID']);
 					$editCommentTextField = "<form method='post'>
 												<input type='text' name='editCommentTextField' value='$commentToEditValue'></input>
@@ -192,8 +193,6 @@ class galleryViewHTML{
 
 		
 		public function GetEditValueFromTextbox(){
-			echo "Hämtar value från textbox";
-			echo $_POST['editCommentTextField'];
 			return $_POST['editCommentTextField'];
 		}
 		
@@ -210,20 +209,22 @@ class galleryViewHTML{
 			return fALSE;
 		}
 		public function didUserPressEditComment(){
-			echo "Tryckt på edit comment";
+			
 			for ($i=0; $i < $this->commentArrayLength; $i++) { 
 				if(isset($_POST['editComment' .$i.''])){
-					$_SESSION['commentEditID'] = $_POST['editCommentshit' . $i . ''];
+					$this->galleryModel->SetCommentEditIDSession($_POST['editCommentshit' . $i . '']);
+			
 					return $_POST['deleteCommentshit'.$i.''];
 				}
 			}
 		}
 
 		public function didUserPressDeleteComment(){
-			echo "Tryckt på delete comment";
+			
 			for ($i=0; $i < $this->commentArrayLength; $i++) { 
 				if(isset($_POST['deleteComment' .$i.''])){
-					$_SESSION['commentDeleteID'] = $_POST['deleteCommentshit' . $i . ''];
+					$this->galleryModel->SetCommentDeleteIDSession($_POST['deleteCommentshit' . $i . '']);
+				
 					return $_POST['deleteCommentshit'.$i.''];
 				}
 			}
@@ -231,7 +232,6 @@ class galleryViewHTML{
 		
 		public function didUserPressPostComment(){
 			if(isset($_POST['comment'])){
-				echo "Tryckt på Posta";
 				return $_POST['comment'];
 			}
 			return "";
@@ -243,14 +243,12 @@ class galleryViewHTML{
 		
 		public function didUserPressGallery(){
 		if(isset($_GET['gallery'])){
-			echo "Tryckt på galleri!";
 			return TRUE;
 		}
 		return FALSE;
 	}
 		public function didUserPressImage(){
 			if(isset($_GET['image'])){
-				echo "Tryckt på bild!";
 				return TRUE;
 			}
 			return FALSE;
@@ -259,7 +257,6 @@ class galleryViewHTML{
 		public function didUSerPressDelete(){
 			
 			if(isset($_POST['delete'])){
-				echo "Tryckt på delete!";
 				return TRUE;
 				
 			}

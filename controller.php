@@ -7,6 +7,7 @@ require_once 'modelLogin.php';
           private $view;
           private $model;
 		  private $registerView;
+		  private $msg = "";
           public function __construct() {
               $this->model = new modelLogin();
               $this->view = new viewHTML($this->model);
@@ -16,7 +17,7 @@ require_once 'modelLogin.php';
           public function login(){
               $username = $this->view->getUsername();
               $password = $this->view->getPassword();
-              $msg = "";
+              //$this->msg = "";
               
     //Om sessionen inte är satt 
             if($this->model->loginStatus() == FALSE){
@@ -24,18 +25,18 @@ require_once 'modelLogin.php';
 		   	if($this->view->checkCookie()){
 	  //Är dom det skicka kaknamn och kaklösen vidare 
 				if($this->model->checkLoginCookie($this->view->getCookieUsername(), $this->view->getCookiePassword())){
-					$msg = "Login with cookies successfull";
+					$this->msg = "Login with cookies successfull";
 				}else{
     //annars ta bort
 					$this->view->removeCookies();
-					$msg = "Cookie contains wrong information";
+					$this->msg = "Cookie contains wrong information";
 				}
 			}
 		}
 			
 			 if($this->view->didUserPressRegister()){
     			 
-				 $msg = "Du har tryckt på registrera!";
+				 $this->msg = "Du har tryckt på registrera!";
 				 $this->view->RegisterValidation();
     		 }  
     //Om användaren vill logga in
@@ -44,16 +45,16 @@ require_once 'modelLogin.php';
                 if($username != "" && $password != "d41d8cd98f00b204e9800998ecf8427e"){
     //Om han kryssat i "remember me"                
                   if($this->model->checkLogin($username, $password)){
-                      $msg = "Successful login";
+                      $this->msg = "Successful login";
                       if($this->view->checkedRememberBox()){
                           $this->view->rememberUser();
-                          $msg = "Login successful you will be remembered";
+                          $this->msg = "Login successful you will be remembered";
                       }
                       
                   }
 					else{
 						$this->model->SetFailUser($username);
-                      	$msg ="Trouble logging in (Username/Password)";
+                      	$this->msg ="Trouble logging in (Username/Password)";
                   }
                }
               }
@@ -61,9 +62,9 @@ require_once 'modelLogin.php';
               if($this->view->didUserPressLogout()){
                   $this->view->removeCookies();
                   $this->model->destroySession();
-                  $msg =  "User logged out";
+                  $this->msg =  "User logged out";
               }
     //Skickar med meddelandet till echoHTML
-              return $this->view->echoHTML($msg);
+              return $this->view->echoHTML($this->msg);
           }
         } 

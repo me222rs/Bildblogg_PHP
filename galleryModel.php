@@ -16,7 +16,7 @@ require_once 'modelLogin.php';
 		
 	
    	 		public function __construct(){
-        		$this->model = new modelLogin();
+        		//$this->model = new modelLogin();
 				$this->db = new PDO($this->connectionString, $this->connectionUsername, $this->connectionPassword);	
     		}
 			
@@ -45,8 +45,7 @@ require_once 'modelLogin.php';
 				$this->stmt->execute(array($loggedInUser));
 				
 				$rows = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
-				//var_dump($rows);
-				//echo $rows[0];
+
 				
 				return $rows[0]["upLoaderID"];
 				
@@ -57,19 +56,21 @@ require_once 'modelLogin.php';
 			
 			
 			public function GetCommentToEdit($commentID){
-				//echo $commentID;
 				
-				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				$this->stmt = $this->db->prepare("SELECT comment FROM comments WHERE commentID=:commentID");
 				$this->stmt->execute(array(':commentID' => $commentID));
 				$rows = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
 				return $rows[0]['comment'];
 			}
 			
+			public function SetEditCommentIDSession($value){
+				
+				$_SESSION['editCommentID'] = $value;
+			}
+			
 			public function EditComment($commentID, $comment){
-				echo "BAAAAAAJS";
 				$commentArray = $_SESSION['commentArray'];
-				var_dump($commentArray);
+				
 				$this->commentID = $_SESSION['editCommentID'];
 				$this->commentID = $commentArray[$this->commentID]['commentID'];
 				$this->commentUser = $commentArray[$_SESSION['editCommentID']]['user'];
@@ -105,14 +106,32 @@ require_once 'modelLogin.php';
 				
 			}
 			
+			public function GetCommentsFromArray(){
+				return $_SESSION['commentArray'];
+			}
+			public function UnsetCommentsArray(){
+				$_SESSION['commentArray'] == NULL;
+			}
+			public function GetCommentToEditSession(){
+				return $_SESSION['editCommentID'];
+			}
+			public function GetCommentToDeleteSession(){
+				return $_SESSION['commentDeleteID'];
+			}
+public function UnsetCommentDeleteSession(){
+	$_SESSION['commentDeleteID'] = NULL;
+}
+			
 			public function DeleteComment($commentID){
-				echo "Koden kommer hit";
+
 				//Ta bort en kommentar man själv lagt upp
 				$this->commentID = $commentID;
+				
 				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				$this->stmt = $this->db->prepare("DELETE FROM comments WHERE commentID=:commentID");
 				$this->stmt->bindValue(':commentID', $this->commentID, PDO::PARAM_STR);
 				$this->stmt->execute();
+				
 				
 			}
 			
@@ -148,7 +167,7 @@ require_once 'modelLogin.php';
 				for($i = 0; $i < $commentArrayLength; $i++){
 					//Visar knappar ifall att den inloggade användaren är den som lagt upp kommentaren
 					
-					if($commentArray[$i]['user'] == $_SESSION['login'] || $commentArray[$i]['user'] != "Admin"){
+					if($commentArray[$i]['user'] == $_SESSION['login']){
 						$deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
 						$editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
 					}
@@ -193,6 +212,14 @@ require_once 'modelLogin.php';
 				
 			}
 			
+			public function SetCommentEditIDSession($value){
+				$_SESSION['commentEditID'] = $value;
+			}
+			
+			public function SetCommentDeleteIDSession($value){
+				$_SESSION['commentDeleteID'] = $value;
+			}
+			
 			public function GetLoggedInUser(){
 				return $_SESSION['login'];
 			}
@@ -220,7 +247,7 @@ require_once 'modelLogin.php';
 				
     			$row = mysqli_fetch_array($result);
 
-				var_dump($row);
+				
 				
 
    				return $imageArray;

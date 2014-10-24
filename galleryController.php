@@ -12,6 +12,10 @@ require_once 'viewHTML.php';
 		  private $model;
 		  private $msg = "";
 		  private $imagesArray = array();
+		  private $loggedInUser;
+		  private $image;
+		  private $commentArray = array();
+		  private $postedComment;
 		  
           public function __construct() {
           	  $this->model = new modelLogin();			
@@ -21,13 +25,11 @@ require_once 'viewHTML.php';
           }
 		  
 		  public function doShowGallery(){
-		  	//$msg = "";
-		  	$loggedInUser = $this->galleryModel->GetLoggedInUser();
-			//$images = "";
-			
-			//$commentArray = $_SESSION['commentArray'];
+		  	
+		  	$this->loggedInUser = $this->galleryModel->GetLoggedInUser();
+
 			//Visar alla bilder
-		  	if(isset($loggedInUser) && $this->galleryViewHTML->didUserPressGallery() == TRUE && $this->galleryViewHTML->didUserPressImage() == FALSE){
+		  	if(isset($this->loggedInUser) && $this->galleryViewHTML->didUserPressGallery() == TRUE && $this->galleryViewHTML->didUserPressImage() == FALSE){
 		  		
 			
 				$this->imagesArray = $this->galleryModel->ShowAllImages();
@@ -40,19 +42,19 @@ require_once 'viewHTML.php';
 			
 			//Visar Enskild bild
 			
-			if($this->galleryViewHTML->didUserPressImage() == TRUE && $this->galleryViewHTML->didUserPressGallery() == TRUE && isset($loggedInUser)){
-				$image = $this->galleryViewHTML->getImageQueryString();
+			if($this->galleryViewHTML->didUserPressImage() == TRUE && $this->galleryViewHTML->didUserPressGallery() == TRUE && isset($this->loggedInUser)){
+				$this->image = $this->galleryViewHTML->getImageQueryString();
 				
 				
 				//Om användaren postar en kommentar
 				if($this->galleryViewHTML->didUserPressPostComment() != ""){
 				
-					$postedComment = $this->galleryViewHTML->didUserPressPostComment();
+					$this->postedComment = $this->galleryViewHTML->didUserPressPostComment();
 					$validMessage = $this->galleryViewHTML->ValidateComment();
 					if($validMessage == ""){
 						
-						$this->galleryModel->PostComment($image, $this->galleryViewHTML->didUserPressPostComment(), $loggedInUser);
-						header('Location: galleryView.php?gallery&image=' . $image);
+						$this->galleryModel->PostComment($this->image, $this->galleryViewHTML->didUserPressPostComment(), $this->loggedInUser);
+						header('Location: galleryView.php?gallery&image=' . $this->image);
 					}
 					
 				}
@@ -61,30 +63,26 @@ require_once 'viewHTML.php';
 				//Ta bort den bild som visas
 				$uploader = $this->galleryModel->GetUploader($this->galleryViewHTML->getImageQueryString());
 				
-				if($this->galleryViewHTML->didUSerPressDelete() && $uploader == $loggedInUser || $this->galleryViewHTML->didUSerPressDelete() && $loggedInUser == "Admin"){
-					$this->galleryModel->DeleteImageFromFolder($image);
+				if($this->galleryViewHTML->didUSerPressDelete() && $uploader == $this->loggedInUser || $this->galleryViewHTML->didUSerPressDelete() && $this->loggedInUser == "Admin"){
+					$this->galleryModel->DeleteImageFromFolder($this->image);
 					header('Location: galleryView.php?gallery');
 				}
 				
 				
 				
 				//Ta bort kommentaren du tryckte på
-				if(isset($_SESSION['commentDeleteID'])){
-					$commentArray = $_SESSION['commentArray'];
-					//$commentID = $this->galleryViewHTML->didUserPressDeleteComment();
-				$cunt = 0;
-				echo">>>>";
-				echo $commentID;
-				
-					
-				
+				$commentDeleteID = $this->galleryModel->GetCommentToDeleteSession();
+				if(isset($commentDeleteID)){
+					$this->commentArray = $this->galleryModel->GetCommentsFromArray();
+
+							
 				//Detta körs inte om en användare ändrat värde på hiddenfield i html koden
-				if($_SESSION['commentDeleteID'] != "" && $loggedInUser == $commentArray[$_SESSION['commentDeleteID']]['user'] || $_SESSION['commentDeleteID'] != "" && $loggedInUser == "Admin"){
-					echo "session är: ";
-					echo $_SESSION['commentID'];
+				if($commentDeleteID != "" && $this->loggedInUser == $this->commentArray[$commentDeleteID]['user'] || $commentDeleteID != "" && $this->loggedInUser == "Admin"){
 						
-					$this->galleryModel->DeleteComment($commentArray[$_SESSION['commentDeleteID']]['commentID']);
-					$_SESSION['commentDeleteID'] = NULL;
+					$this->galleryModel->DeleteComment($this->commentArray[$commentDeleteID]['commentID']);
+					//$_SESSION['commentDeleteID'] = NULL;
+					//$this->galleryModel->UnsetCommentsArray();
+					$this->galleryModel->UnsetCommentDeleteSession();
 					
 					
 				}
@@ -95,22 +93,19 @@ require_once 'viewHTML.php';
 				
 				
 				//Om en användare tryckt på redigera så kommer det läggas till en textbox på sidan som är ifylld med kommentarens värde.
-				if($this->galleryViewHTML->didUserPressPostEditedComment() == TRUE|| $_SESSION['login'] == "Admin" && $this->galleryViewHTML->didUserPressPostEditedComment() == TRUE){
-					echo "commentArray är: ";
-					$commentArray = $_SESSION['commentArray'];
+				if($this->galleryViewHTML->didUserPressPostEditedComment() == TRUE|| $this->loggedInUser == "Admin" && $this->galleryViewHTML->didUserPressPostEditedComment() == TRUE){
 					
-					echo "session i controller är: ";
-					echo $_SESSION['editCommentID'];
-					//$commentsID = $commentArray[$_SESSION['editCommentID']]['commentID'];
-					$postedComment = $this->galleryViewHTML->didUserPressPostEditedComment();
+					$this->commentArray = $this->galleryModel->GetCommentsFromArray();
+					$this->editCommentID = $this->galleryModel->GetCommentToEditSession();
+					
+					$this->postedComment = $this->galleryViewHTML->didUserPressPostEditedComment();
 					$commentValue = $this->galleryViewHTML->GetEditValueFromTextbox();
 					$validMessage = $this->galleryViewHTML->ValidateComment();
-					echo $validMessage;
+					
 					if($validMessage == ""){
-						echo "kommer in till spara edit comment";
-						$success = $this->galleryModel->EditComment($commentArray[$_SESSION['editCommentID']], $commentValue);
+						$success = $this->galleryModel->EditComment($this->commentArray[$this->editCommentID], $commentValue);
 						if($success == TRUE){
-							header('Location: galleryView.php?gallery&image=' . $image);
+							header('Location: galleryView.php?gallery&image=' . $this->image);
 						}
 					}
 					

@@ -21,7 +21,6 @@
     	$row = mysqli_fetch_array($query);
 		
 		if($count == 1){
-			//echo $count;
 			return FALSE;
 		}
 		return TRUE;
@@ -105,17 +104,12 @@
     	}   
 	mysqli_close($connection);
     
-	//*****************************************			
-	       // if($this->username == $username && $this->password == $password){
-	           // $_SESSION['login'] = $username;
-	           // $_SESSION["checkBrowser"] = $_SERVER['HTTP_USER_AGENT'];
-	           // return TRUE;
-	       // } 
-	       // else{
-	       // return FALSE;
-	       // }
 	}
        
+	   public function GetLoggedInUser(){
+	   		return $_SESSION['login'];
+	   }
+	   
         public function destroySession(){
             session_unset();
             session_destroy();

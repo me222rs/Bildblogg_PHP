@@ -6,9 +6,7 @@ require_once 'uploadView.php';
 require_once 'uploadModel.php';
 
 class viewHTML {
-	//private $username = '';
 	private $usrValue = '';
-	//private $password = '';
 	private $msg = '';
 	private $messageArray = array();
 	private $user;
@@ -18,95 +16,88 @@ class viewHTML {
 	private $uploadView;
 	private $uploadModel;
 	
+	private $UsernameOK = FALSE;
+	private $PasswordOK = FALSE;
+	private $available = FALSE;
+	private $DangerousUsername = FALSE;
+	private $newUsername;
+	private $newPassword;
+	private $strippedUsername;
+	private $uservalue;
+	private $success;
+	private $errorMessages;
+	private $username;
+	private $password;
 
 
-//TODO: FIXA
     public	function __construct(modelLogin $model) {
         $this->model = $model;
-		//$this->uploadView = new uploadView();
-		//$this->uploadModel = new uploadModel();
 	}
 
-//Min kod
+//Min kod hela funktionen RegisterValidation
 public function RegisterValidation(){
-	$UsernameOK = FALSE;
-	$PasswordOK = FALSE;
-	$available = FALSE;
-	$DangerousUsername = FALSE;
+	$this->newUsername = $_POST['newUsername'];
+	$this->newPassword = $_POST['newPassword'];
 	
-	if (strpos($_POST['newUsername'],'<') !== false || strpos($_POST['newUsername'],'>') !== false){
-		echo "HORA";
-		$DangerousUsername = TRUE;
-		echo $DangerousUsername;
+	if (strpos($this->newUsername,'<') !== false || strpos($this->newUsername,'>') !== false){
+		$this->DangerousUsername = TRUE;
 	}
 	
-	$strippedUsername = filter_var($_POST['newUsername'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
-	echo $strippedUsername;
+	$this->strippedUsername = filter_var($this->newUsername, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
 	if(isset($_POST['registerButton']) == TRUE){
 		
-		if(isset($_POST['newUsername']) == FALSE || strlen($strippedUsername) < 3 && $DangerousUsername == FALSE){	
+		if(isset($this->newUsername) == FALSE || strlen($this->strippedUsername) < 3 && $this->DangerousUsername == FALSE){	
 			array_push($this->messageArray, "Användarnamnet måste ha minst 3 tecken");
-			$this->user = $strippedUsername;
+			$this->user = $this->strippedUsername;
 		}else{
-			echo "Användarnamn stämmer";
-			$UsernameOK = TRUE;
+			$this->UsernameOK = TRUE;
 		}
 		
-		if(isset($_POST['newPassword']) == FALSE || strlen($_POST['newPassword']) < 6 && $DangerousUsername == FALSE){
-			echo isset($_POST['newPassword']);
-			echo $_POST['newPassword'];
+		if(isset($this->newUsername) == FALSE || strlen($this->newPassword) < 6 && $this->DangerousUsername == FALSE){
 			array_push($this->messageArray, "Lösenordet måste ha minst 6 tecken");
-			$this->user = $strippedUsername;
+			$this->user = $this->strippedUsername;
 		}else{
-				if($_POST['repeatedNewPassword'] != $_POST['newPassword']){
-					echo "Lösenorden är olika!";
-					$this->user = $strippedUsername;
+				if($_POST['repeatedNewPassword'] != $this->newPassword){
+					$this->user = $this->strippedUsername;
 					array_push($this->messageArray, "Lösenordet stämmer inte");
 				}else{
-					echo "Lösenord stämmer";
-					$PasswordOK = TRUE;
+					$this->PasswordOK = TRUE;
 				}
 		}
 		
-		if($UsernameOK == TRUE && $PasswordOK == TRUE && $DangerousUsername == FALSE){
-			echo "FITTA";
-			$available = $this->model->CheckIfUsernameIsAvailable($_POST['newUsername']);
-			//echo $available;
-			if($available == TRUE){
-				$this->model->Save($strippedUsername, $_POST['newPassword']);
+		if($this->UsernameOK == TRUE && $this->PasswordOK == TRUE && $this->DangerousUsername == FALSE){
+			$this->available = $this->model->CheckIfUsernameIsAvailable($this->newUsername);
+			if($this->available == TRUE){
+				$this->model->Save($this->strippedUsername, $this->newPassword);
 				header('Location: index.php');
 			}
 				
 			else{
-				$this->user = $strippedUsername;
-				//echo $DangerousUsername;
+				$this->user = $this->strippedUsername;
 					array_push($this->messageArray, "Användarnamnet är upptaget!");
 
 				
 			}
 		}else{
-			if($DangerousUsername == TRUE){
+			if($this->DangerousUsername == TRUE){
 					array_push($this->messageArray, "Användarnamnet innehåller ogiltiga tecken!");
 				}
-			$this->user = $strippedUsername;
+			$this->user = $this->strippedUsername;
 		}
 		}
 
 	}
 
 
-public function GetUser(){
-	
-}
 
 public function echoHTML($msg){
 
 	
-	$uservalue = $this->model->SuccessUser();
-	$success = $this->model->SuccessMessage();
+	$this->uservalue = $this->model->SuccessUser();
+	$this->success = $this->model->SuccessMessage();
 	
-	if($uservalue != "" || $uservalue != NULL && $success != "" || $success !=  NULL){
-		$this->usrValue = $uservalue;
+	if($this->uservalue != "" || $this->uservalue != NULL && $this->success != "" || $this->success !=  NULL){
+		$this->usrValue = $this->uservalue;
 	}
 	
 	$failUser = $this->model->GetFailUser();
@@ -116,8 +107,8 @@ public function echoHTML($msg){
 		$this->model->UnsetFailUser();
 	}
 	
-	$User = $_SESSION['login'];
-	$errorMessages = implode(" och ", $this->messageArray);
+	$User = $this->model->GetLoggedInUser();
+	$this->errorMessages = implode(" och ", $this->messageArray);
     $ret="";
     		//Clock function
 		/*
@@ -138,7 +129,7 @@ public function echoHTML($msg){
 			</h1>
 			<a href='index.php'>Tillbaka</a>
 			<br>
-			<p>$errorMessages</p>
+			<p>$this->errorMessages</p>
 			<label for='newUsername'>Användarnamn: </label>
 			<br>
 			<input type='text' name='newUsername' id='newUsername' value='$this->user'/>
@@ -194,7 +185,7 @@ public function echoHTML($msg){
 			Laboration_2
 		</h1>
 		<h2>
-				Ej inloggad $success
+				Ej inloggad $this->success
 		</h2>
 		<a href='index.php?register'>Register</a>
 	<h3>$msg</h3>
@@ -229,40 +220,28 @@ public function echoHTML($msg){
 public function didUserPressLogin(){
 
 	
-	    $username = $_POST['username'];
-	    $password = md5($_POST['password']);
-		echo "test";
-		var_dump($_POST['username']);
+	    $this->username = $_POST['username'];
+	    $this->password = md5($_POST['password']);
 	    
 	    if (isset($_POST['submit'])) {
 	    
 	    		
-		if($password == "d41d8cd98f00b204e9800998ecf8427e" || $password == NULL){
-			echo "Lösenordet är tomt";
+		if($this->password == "d41d8cd98f00b204e9800998ecf8427e" || $this->password == NULL){
 		    $this->msg = "Password is empty.";
-			//echo "helvete";
-			//var_dump("1. usrValue = " . $this->usrValue);
-			//var_dump("usrValue = " . $username);
-		    $this->usrValue = $username;
-		    //var_dump("2. usrValue = " . $this->usrValue);
+			
+		    $this->usrValue = $this->username;
+		    
 		    
 		}
 		
 	        	
 	        
-		if($username == "" || $username == NULL){
-			echo "Användarnamnet är tomt";
-		    $this->usrValue = $username;
+		if($this->username == "" || $this->username == NULL){
+		    $this->usrValue = $this->username;
 		    $this->msg = "Username is missing.";
 		}
 
 
-		
-		// if($username != "" && $password != ""){
-			// echo "Båda fälten är tomma";
-		    // $this->usrValue = $username;
-// 		    
-		// }
 		return TRUE;
 		}
 		
@@ -330,7 +309,6 @@ public function didUserPressLogin(){
 	//Min kod
 	public function didUserPressRegister(){
 		if(isset($_GET['register'])){
-			echo "Tryckt på registrera!";
 			return TRUE;
 		}
 		return FALSE;
@@ -338,7 +316,6 @@ public function didUserPressLogin(){
 	
 		public function didUserPressUpload(){
 		if(isset($_GET['upload'])){
-			echo "Tryckt på ladda upp!";
 			return TRUE;
 		}
 		return FALSE;
@@ -346,7 +323,6 @@ public function didUserPressLogin(){
 		
 		public function didUserPressGallery(){
 		if(isset($_GET['gallery'])){
-			echo "Tryckt på galleri!";
 			return TRUE;
 		}
 		return FALSE;

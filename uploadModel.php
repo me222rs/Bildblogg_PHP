@@ -10,20 +10,49 @@ require_once 'modelLogin.php';
 		private $data = array();
 		private $imageWidth;
 		private	$imageHeight;
-		private $maxWidth = 200;
-		private $maxHeight = 200;
+		private $maxWidth = 200; //Ändra bilden storlek här
+		private $maxHeight = 200; //Ändra bilden storlek här
 		private $newWidth = 0;
 		private $newHeight = 0;
 		private $ratio;
 		private $fileWithoutExtention;
 		private $uploadfile;
+		private $image;
+		private $scaled;
+	
+		//TODO Fixa en connection string och PDO
 	
    	 	public function __construct(){
         $this->model = new modelLogin();	
     	}
 		
+		public function GetLoggedInUser(){
+			return $_SESSION['login'];
+		}
+		
+		
+		public function ValidateFilesize($filesize){
+			if($filesize > 26214400){ //25mb
+				return "Filen är för stor!";
+			}
+			return "";
+		}
+		
+		public function Validate($filename){
+			
+			if(strlen($filename) > 40){
+				return "Filnamnet är för långt!";
+			}else{
+				return "";
+			}
+
+			
+		}
+		
+		
 		
 		public function CheckIfImageExistsInDataBase($imageName){
+		
 			$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
     			if (mysqli_connect_errno($connection)){
         			echo "MySql Error: " . mysqli_connect_error();
@@ -34,10 +63,8 @@ require_once 'modelLogin.php';
     		$row = mysqli_fetch_array($query);
 
     		if ($count == 1){
-    			echo "Bilden finns redan.";
 	    		return TRUE;
     		}else{
-    			echo "Bilden finns ej.";
        			return false;
     		}   
 		}
@@ -57,6 +84,7 @@ require_once 'modelLogin.php';
 			return $_FILES['filename']['name'];
 		}
 		
+		//returnerar filens storlek i bytes
 		public function GetFileSize(){
 			return filesize($_FILES['filename']['tmp_name']);
 		}
@@ -75,22 +103,16 @@ require_once 'modelLogin.php';
 
 			}elseif(!empty($this->filename)){
 				
-				//******************Ej strängberoende hit*******************
 				
+				//data är en array som innehåller info om bilden. På plats 0 och 1 ligger bredd och höjd
 				$this->data = getimagesize($_FILES['filename']['tmp_name']);
 				
-				$this->imageWidth = $this->data[0];	//1920
-				$this->imageHeight = $this->data[1]; //1080
-				//$maxWidth = 200;
-				//$maxHeight = 200;
-				//$newWidth = 0;
-				//$newHeight = 0;
+				$this->imageWidth = $this->data[0];	
+				$this->imageHeight = $this->data[1]; 
 				$this->ratio = $this->imageWidth / $this->imageHeight;
 
 
-				//$shittyFileName = $_FILES['filename']['name'];
-				//var_dump("./UploadedImages/" . $this->filename);
-				//$imageExists = $this->CheckIfImageExistsInDataBase($_FILES['filename']['name']);
+			
 				$i = 1;
 				while(file_exists("./UploadedImages/" . $this->filename)){
 					$this->fileWithoutExtention = basename($_FILES['filename']['name'],".jpg");
@@ -98,9 +120,9 @@ require_once 'modelLogin.php';
 					
 					
 					$i++;
-					var_dump($this->filename);
+					
 				}
-				
+				//Räknar ut den nya storleken på bilden. Aspect ratio behålls.
 				if($this->imageWidth > $this->maxWidth){	
 					$this->imageWidth = $this->maxWidth;	
 					$this->imageHeight = $this->maxWidth / $this->ratio; 
@@ -116,23 +138,23 @@ require_once 'modelLogin.php';
 				
 				$this->uploadfile = $this->folder . basename($this->filename);	
 						
-				$image = imagecreatefromjpeg($_FILES['filename']['tmp_name']);
-				$scaled = imagescale($image, $this->imageWidth, $this->imageHeight,  IMG_BICUBIC_FIXED);
-				imagejpeg($scaled, $this->uploadfile);
+				$this->image = imagecreatefromjpeg($_FILES['filename']['tmp_name']);
+				$this->scaled = imagescale($this->image, $this->imageWidth, $this->imageHeight,  IMG_BICUBIC_FIXED);
+				imagejpeg($this->scaled, $this->uploadfile);
 				
 				//Add image to database
 				$this->AddImageNameToDatabase($this->filename);
 				
 				
-				imagedestroy($image);
-				imagedestroy($scaled);
+				imagedestroy($this->image);
+				imagedestroy($this->scaled);
 
 				if (file_exists($this->uploadfile)) {
 					$_SESSION['UploadSuccess'] = TRUE;
 					return "Upload success!";
 				}
 				
-						// if (move_uploaded_file($_FILES['filename']['tmp_name'], $uploadfile)) {
+				
 
 				}
 			}

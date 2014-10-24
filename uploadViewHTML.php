@@ -1,10 +1,19 @@
 <?php
-
+	require_once 'uploadModel.php';
     class uploadViewHTML{
+    	private $uploadModel;
         
+		public function __construct() {		
+              $this->uploadModel = new uploadModel();
+        }
+		
+		
         public function echoHTML($body){
         	
-        	if(isset($_SESSION['login']) && $this->didUserPressUpload() == TRUE){
+		$loggedInUser = $this->uploadModel->GetLoggedInUser();
+			
+			
+        	if(isset($loggedInUser) && $this->didUserPressUpload() == TRUE){
 			
 			
             echo "
@@ -18,6 +27,7 @@
 				<body>
 					<h2>Upload images</h2>
 					<a href='index.php'>Tillbaka</a>
+					<p>Filformatet måste vara av typen .jpg, inte vara större än 25mb och inte ha ett namn som är över 40 tecken.</p>
 					<form method='post' enctype='multipart/form-data'>
 					
 					<label for='file'>File:</label>
@@ -34,33 +44,21 @@
 		
 		}
 		
-		public function ValidateFilesize($filesize){
-			if($filesize > 26214400){
-				echo "filen är för stor";
-				return "Filen är för stor!";
-			}
-			return "";
-		}
-		
-		public function Validate($filename){
-			
-			if(strlen($filename) > 40){
-				echo $filename;
-				return "Filnamnet är för långt!";
-			}else{
-				return "";
-			}
 
-			
-		}
 		
 		public function didUserPressUpload(){
-		if(isset($_GET['upload'])){
-			echo "Tryckt på ladda upp!";
-			return TRUE;
+			if(isset($_GET['upload'])){
+				return TRUE;
 		}
-		return FALSE;
-	}
+			return FALSE;
+		}
+	
+		public function didUserPressUploadImageButton(){
+			if(isset($_POST['upload'])){
+				return TRUE;
+			}
+			return FALSE;
+		}
 			
 		}
 		
