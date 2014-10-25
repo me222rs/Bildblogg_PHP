@@ -16,6 +16,7 @@ require_once 'viewHTML.php';
 		  private $image;
 		  private $commentArray = array();
 		  private $postedComment;
+		  private $commentDeleteID;
 		  
           public function __construct() {
           	  $this->model = new modelLogin();			
@@ -67,20 +68,23 @@ require_once 'viewHTML.php';
 				if($this->galleryViewHTML->didUSerPressDelete() && $uploader == $this->loggedInUser || $this->galleryViewHTML->didUSerPressDelete() && $this->loggedInUser == "Admin"){
 					$this->galleryModel->DeleteImageFromFolder($this->image);
 					header('Location: galleryIndex.php?gallery');
+					//$this->msg = "Image removed successfully!";
+					//return $this->galleryViewHTML->echoHTMLGallery($this->imagesArray, $this->msg);
+					
 				}
 				
 				
 				
 				//Ta bort kommentaren du tryckte på
-				$commentDeleteID = $this->galleryModel->GetCommentToDeleteSession();
-				if(isset($commentDeleteID)){
+				$this->commentDeleteID = $this->galleryModel->GetCommentToDeleteSession();
+				if(isset($this->commentDeleteID)){
 					$this->commentArray = $this->galleryModel->GetCommentsFromArray();
 
 							
 				//Detta körs inte om en användare ändrat värde på hiddenfield i html koden
-				if($commentDeleteID != "" && $this->loggedInUser == $this->commentArray[$commentDeleteID]['user'] || $commentDeleteID != "" && $this->loggedInUser == "Admin"){
+				if($this->commentDeleteID != "" && $this->loggedInUser == $this->commentArray[$this->commentDeleteID]['user'] || $this->commentDeleteID != "" && $this->loggedInUser == "Admin"){
 						
-					$this->galleryModel->DeleteComment($this->commentArray[$commentDeleteID]['commentID']);
+					$this->galleryModel->DeleteComment($this->commentArray[$this->commentDeleteID]['commentID']);
 					//$_SESSION['commentDeleteID'] = NULL;
 					//$this->galleryModel->UnsetCommentsArray();
 					$this->galleryModel->UnsetCommentDeleteSession();

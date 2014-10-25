@@ -16,10 +16,12 @@ require_once 'modelLogin.php';
 		private $deleteCommentButton = "";
 		private $editCommentButton = "";
 		private $arrayWithComments = array();
+		private $loggedIn;
+		private $editCommentID;
 		
 	
    	 		public function __construct(){
-        		//$this->model = new modelLogin();
+        		
 				$this->db = new PDO($this->connectionString, $this->connectionUsername, $this->connectionPassword);	
     		}
 			
@@ -38,11 +40,6 @@ require_once 'modelLogin.php';
 			
 			public function GetUploader($imageUploader){
 
-				
-				$returnString = "";
-				
-				//$db = new PDO($this->connectionString, $this->connectionUsername, $this->connectionPassword);
-				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				
 				$this->stmt = $this->db->prepare("SELECT upLoaderID FROM images WHERE imageName=?");
 				$this->stmt->execute(array($imageUploader));
@@ -72,24 +69,26 @@ require_once 'modelLogin.php';
 			}
 			
 			public function EditComment($commentID, $comment){
-				$commentArray = $_SESSION['commentArray'];
+				$this->loggedIn = $this->GetLoggedInUser();
+				$commentArray = $this->GetCommentsFromArray();
+				$this->editCommentID = $this->GetCommentToEditSession();
 				
-				$this->commentID = $_SESSION['editCommentID'];
-				$this->commentID = $commentArray[$this->commentID]['commentID'];
-				$this->commentUser = $commentArray[$_SESSION['editCommentID']]['user'];
+			
+				$this->commentID = $commentArray[$this->editCommentID]['commentID'];
+				$this->commentUser = $commentArray[$this->editCommentID]['user'];
 
-				if($this->commentUser == $_SESSION['login']){
+				if($this->commentUser == $this->loggedIn){
 					
 									$this->comment = $comment;
 				
 				if($this->commentID != ""){
-					$_SESSION['editCommentID'] = $this->commentID;	
+					$this->editCommentID = $this->commentID;	
 				}
 				 if($this->commentID != ""){
 					 $_SESSION['commentUser'] == NULL;
 				 }
 				if($this->comment != ""){
-				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+				
 				$this->stmt = $this->db->prepare("UPDATE comments SET comment=? WHERE commentID=?");
 				$this->stmt->execute(array($this->comment, $this->commentID));
 				$affected_rows = $this->stmt->rowCount();
@@ -121,16 +120,15 @@ require_once 'modelLogin.php';
 			public function GetCommentToDeleteSession(){
 				return $_SESSION['commentDeleteID'];
 			}
-public function UnsetCommentDeleteSession(){
-	$_SESSION['commentDeleteID'] = NULL;
-}
+			public function UnsetCommentDeleteSession(){
+				$_SESSION['commentDeleteID'] = NULL;
+			}
 			
 			public function DeleteComment($commentID){
 
 				//Ta bort en kommentar man själv lagt upp
 				$this->commentID = $commentID;
-				
-				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+
 				$this->stmt = $this->db->prepare("DELETE FROM comments WHERE commentID=:commentID");
 				$this->stmt->bindValue(':commentID', $this->commentID, PDO::PARAM_STR);
 				$this->stmt->execute();
@@ -148,7 +146,7 @@ public function UnsetCommentDeleteSession(){
 					$_SESSION['PostMessage'] = "Posten innehåller ogiltiga tecken!";
 					return;
 				}
-				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+	
 				$this->stmt = $this->db->prepare("INSERT INTO comments(comment,imageName,user) VALUES(:comment,:imageName,:user)");
 					$this->stmt->execute(array(':comment' => $this->comment, ':imageName' => $this->displayedGalleryImage, ':user' => $this->user));
 				
@@ -156,8 +154,9 @@ public function UnsetCommentDeleteSession(){
 			}
 			
 			public function GetCommentsFromDB($displayedGalleryImage){
+				$this->loggedIn = $this->GetLoggedInUser();
 				//Hämta alla kommentarer till en bild
-				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
+		
 				$this->displayedGalleryImage = $displayedGalleryImage;
 				$rows = array();
 				
@@ -172,14 +171,14 @@ public function UnsetCommentDeleteSession(){
 				for($i = 0; $i < $commentArrayLength; $i++){
 					//Visar knappar ifall att den inloggade användaren är den som lagt upp kommentaren
 					
-					if($this->arrayWithComments[$i]['user'] == $_SESSION['login'] && $this->arrayWithComments[$i]['user'] != "Admin"){
+					if($this->arrayWithComments[$i]['user'] == $this->loggedIn && $this->arrayWithComments[$i]['user'] != "Admin"){
 						$this->deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
 						$this->editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
 					}
 					
 					
 					//Visar alla knappar för admin
-					if($this->arrayWithComments[$i]['user'] == "Admin" && $this->arrayWithComments[$i]['user'] == $_SESSION['login']){
+					if($this->arrayWithComments[$i]['user'] == "Admin" && $this->arrayWithComments[$i]['user'] == $this->loggedIn){
 						$this->deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
 						$this->editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
 					}
@@ -201,12 +200,8 @@ public function UnsetCommentDeleteSession(){
 				return $implodedArrayComment;
 			}
 			
-			public function GetCommentSession(){
-				return $_SESSION['commentArray'];
-			}
-			
+
 			public function DeleteImageFromDB($displayedGalleryImage){
-				//$db = new PDO('mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8', 'root', '');
 				$this->displayedGalleryImage = $displayedGalleryImage;
 				$this->stmt = $this->db->prepare("DELETE FROM images WHERE imageName=?");
 				$this->stmt->execute(array($this->displayedGalleryImage));

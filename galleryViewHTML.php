@@ -11,9 +11,6 @@ class galleryViewHTML{
 		private $commentArray = array();
 		private $uploader;
 		private $displayedImage;
-		// private $deleteCommentButton;
-		// private $editCommentButton;
-		//private $comment = array();
 		private $galleryCommentID;
 		private $galleryCommentArrayLength;
 		private $commentValue;
@@ -85,9 +82,6 @@ class galleryViewHTML{
 		
         public function echoHTML($body){
         	
-			
-			
-			//if($this->didUserPressImage() == TRUE && isset($_SESSION['login']) && $this->didUserPressGallery() == TRUE){
 				
 				//Sparar vem som är inloggad
 				$this->loggedInUser = $this->galleryModel->GetLoggedInUser();
@@ -99,7 +93,7 @@ class galleryViewHTML{
 				$this->displayedImage = $this->getImageQueryString();
 				
 				//Innehåller en array med värden som ska jämföras med saker nedan för att rätt värden ska visas bland kommentarerna
-				$this->commentArray = $this->galleryModel->GetCommentSession();
+				$this->commentArray = $this->galleryModel->GetCommentsFromArray();
 				
 				//Kollar längden på arrayen ovanför.
 				$this->galleryCommentArrayLength = count($this->commentArray);
@@ -108,9 +102,6 @@ class galleryViewHTML{
 				$this->commentArray2 = $this->galleryModel->GetCommentsFromDB($this->displayedImage);
 				
 				
-				
-					// $this->deleteCommentButton = "";
-					// $this->editCommentButton = "";
 		
 				//Visa ta bort en bild-knapp
 				if($this->loggedInUser == $this->uploader && $this->uploader != "" || $this->loggedInUser == "Admin" && $this->uploader != ""){
@@ -130,7 +121,7 @@ class galleryViewHTML{
 				
 				
 				
-				//TODO Skapa en echo som visar det vanliga html dokumentet
+
 				//Användaren trycker på edit så visas textbox med kommentaren ifyllt
 				$this->galleryCommentID = $this->didUserPressEditComment(); 
 				if($this->galleryCommentID != ""){
