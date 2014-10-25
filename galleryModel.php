@@ -172,7 +172,7 @@ public function UnsetCommentDeleteSession(){
 				for($i = 0; $i < $commentArrayLength; $i++){
 					//Visar knappar ifall att den inloggade användaren är den som lagt upp kommentaren
 					
-					if($this->arrayWithComments[$i]['user'] == $_SESSION['login'] || $this->arrayWithComments[$i]['user'] != "Admin"){
+					if($this->arrayWithComments[$i]['user'] == $_SESSION['login'] && $this->arrayWithComments[$i]['user'] != "Admin"){
 						$this->deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
 						$this->editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
 					}
