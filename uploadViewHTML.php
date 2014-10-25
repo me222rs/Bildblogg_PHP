@@ -10,10 +10,10 @@
 		
         public function echoHTML($body){
         	
-		$loggedInUser = $this->uploadModel->GetLoggedInUser();
+		$loggedIn = $this->uploadModel->GetLoggedInUser();
 			
 			
-        	if(isset($loggedInUser) && $this->didUserPressUpload() == TRUE){
+        	if(isset($loggedIn) && $this->didUserPressUpload() == TRUE){
 			
 			
             echo "

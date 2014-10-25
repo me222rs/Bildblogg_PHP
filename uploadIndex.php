@@ -1,6 +1,6 @@
 <?php
 
-require_once 'uploadViewHTML.php';
+//require_once 'uploadViewHTML.php';
 require_once 'uploadController.php';
 
 session_start();

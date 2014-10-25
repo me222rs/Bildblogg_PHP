@@ -38,6 +38,7 @@ require_once 'viewHTML.php';
 			
 			
 			return $this->galleryViewHTML->echoHTMLGallery($this->imagesArray);
+			
 			}
 			
 			//Visar Enskild bild
@@ -50,11 +51,11 @@ require_once 'viewHTML.php';
 				if($this->galleryViewHTML->didUserPressPostComment() != ""){
 				
 					$this->postedComment = $this->galleryViewHTML->didUserPressPostComment();
-					$validMessage = $this->galleryViewHTML->ValidateComment();
+					$validMessage = "";
 					if($validMessage == ""){
 						
 						$this->galleryModel->PostComment($this->image, $this->galleryViewHTML->didUserPressPostComment(), $this->loggedInUser);
-						header('Location: galleryView.php?gallery&image=' . $this->image);
+						header('Location: galleryIndex.php?gallery&image=' . $this->image);
 					}
 					
 				}
@@ -65,7 +66,7 @@ require_once 'viewHTML.php';
 				
 				if($this->galleryViewHTML->didUSerPressDelete() && $uploader == $this->loggedInUser || $this->galleryViewHTML->didUSerPressDelete() && $this->loggedInUser == "Admin"){
 					$this->galleryModel->DeleteImageFromFolder($this->image);
-					header('Location: galleryView.php?gallery');
+					header('Location: galleryIndex.php?gallery');
 				}
 				
 				
@@ -105,7 +106,7 @@ require_once 'viewHTML.php';
 					if($validMessage == ""){
 						$success = $this->galleryModel->EditComment($this->commentArray[$this->editCommentID], $commentValue);
 						if($success == TRUE){
-							header('Location: galleryView.php?gallery&image=' . $this->image);
+							header('Location: galleryIndex.php?gallery&image=' . $this->image);
 						}
 					}
 					
@@ -117,6 +118,9 @@ require_once 'viewHTML.php';
 				
 				
 				return $this->galleryViewHTML->echoHTML($this->imagesArray);
+			}
+			if(!isset($this->loggedInUser)){
+				header('Location: index.php');
 			}
 			
 			

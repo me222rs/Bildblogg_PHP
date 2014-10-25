@@ -11,7 +11,7 @@ require_once 'viewHTML.php';
 		  private $viewHTML;
 		  private $model;
 		  private $msg = "";
-		  private $loggedInUser;
+		  private $isLoggedIn;
 		  
           public function __construct() {
           	  //$this->model = new modelLogin();			
@@ -22,8 +22,14 @@ require_once 'viewHTML.php';
 		  
 		  public function doUpload(){
 			//$msg = "";
-			$this->loggedInUser = $this->uploadModel->GetLoggedInUser();
-		  	if(isset($this->loggedInUser) && $this->uploadViewHTML->didUserPressUploadImageButton() == TRUE){
+			
+			
+			$this->isLoggedIn = $this->uploadModel->GetLoggedInUser();
+		  	if(!isset($this->isLoggedIn)){
+				header('Location: index.php');
+			}
+		  	
+		  	if(isset($this->isLoggedIn) && $this->uploadViewHTML->didUserPressUploadImageButton() == TRUE){
 				$filename = $this->uploadModel->GetFilename();
 				$filesize = $this->uploadModel->GetFileSize();
 				

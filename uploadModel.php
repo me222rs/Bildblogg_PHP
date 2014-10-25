@@ -13,17 +13,23 @@ require_once 'modelLogin.php';
 		private $maxWidth = 200; //Ändra bilden storlek här
 		private $maxHeight = 200; //Ändra bilden storlek här
 		private $newWidth = 0;
-		private $newHeight = 0;
-		private $ratio;
+		//private $newHeight = 0;
+		//private $ratio;
 		private $fileWithoutExtention;
 		private $uploadfile;
 		private $image;
 		private $scaled;
-	
-		//TODO Fixa en connection string och PDO
+		
+		private $dbhost = "127.0.0.1";
+		private $dbUsername = "root";
+		private $dbPassword = "";
+		private $dbName = "loginlabb4";
+		private $connectionToDB;
+		
 	
    	 	public function __construct(){
-        $this->model = new modelLogin();	
+        $this->model = new modelLogin();
+		$this->connectionToDB =	mysqli_connect($this->host, $this->dbUsername, $this->dbPassword, $this->dbName);
     	}
 		
 		public function GetLoggedInUser(){
@@ -53,12 +59,12 @@ require_once 'modelLogin.php';
 		
 		public function CheckIfImageExistsInDataBase($imageName){
 		
-			$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
-    			if (mysqli_connect_errno($connection)){
+			//$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
+    			if (mysqli_connect_errno($this->connectionToDB)){
         			echo "MySql Error: " . mysqli_connect_error();
     			}
 
-    		$query = mysqli_query($connection,"SELECT * FROM images WHERE imageName='$imageName'");
+    		$query = mysqli_query($this->connectionToDB,"SELECT * FROM images WHERE imageName='$imageName'");
     		$count = mysqli_num_rows($query);
     		$row = mysqli_fetch_array($query);
 
@@ -71,13 +77,13 @@ require_once 'modelLogin.php';
 		
 		public function AddImageNameToDatabase($imageName){
 			$upLoaderID = $_SESSION['login'];
-			$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
+			//$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
 			
-    			if (mysqli_connect_errno($connection)){
+    			if (mysqli_connect_errno($this->connectionToDB)){
         			echo "MySql Error: " . mysqli_connect_error();
     			}
 		
-    		mysqli_query($connection,"INSERT images SET imageName = '$imageName', upLoaderID = '$upLoaderID'");
+    		mysqli_query($this->connectionToDB,"INSERT images SET imageName = '$imageName', upLoaderID = '$upLoaderID'");
 		}
 		
 		public function GetFileName(){
@@ -92,7 +98,7 @@ require_once 'modelLogin.php';
 		public function SaveImageToFolder(){
 			if($this->model->loginStatus()){
 				
-				$this->allowed =  array('gif','png' ,'jpg');
+				$this->allowed =  array('jpg');
 				$this->filename = $_FILES['filename']['name'];
 				$this->ext = pathinfo($this->filename, PATHINFO_EXTENSION);
 				

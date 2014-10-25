@@ -1,6 +1,6 @@
 <?php
 
-require_once 'galleryViewHTML.php';
+//require_once 'galleryViewHTML.php';
 require_once 'galleryController.php';
 
 session_start();

@@ -2,14 +2,14 @@
 
 setlocale(LC_ALL, "sv_SE", "swedish");
 require_once 'modelLogin.php';
-require_once 'uploadView.php';
+//require_once 'uploadView.php';
 require_once 'uploadModel.php';
 
 class viewHTML {
 	private $usrValue = '';
-	private $msg = '';
+	private $message = '';
 	private $messageArray = array();
-	private $user;
+	private $userToRegister;
     
     private $model;
 	private $view;
@@ -20,8 +20,8 @@ class viewHTML {
 	private $PasswordOK = FALSE;
 	private $available = FALSE;
 	private $DangerousUsername = FALSE;
-	private $newUsername;
-	private $newPassword;
+	private $requestedUsername;
+	private $requestedPassword;
 	private $strippedUsername;
 	private $uservalue;
 	private $success;
@@ -36,29 +36,29 @@ class viewHTML {
 
 //Min kod hela funktionen RegisterValidation
 public function RegisterValidation(){
-	$this->newUsername = $_POST['newUsername'];
-	$this->newPassword = $_POST['newPassword'];
+	$this->requestedUsername = $_POST['newUsername'];
+	$this->requestedPassword = $_POST['newPassword'];
 	
-	if (strpos($this->newUsername,'<') !== false || strpos($this->newUsername,'>') !== false){
+	if (strpos($this->requestedUsername,'<') !== false || strpos($this->requestedUsername,'>') !== false){
 		$this->DangerousUsername = TRUE;
 	}
 	
-	$this->strippedUsername = filter_var($this->newUsername, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+	$this->strippedUsername = filter_var($this->requestedUsername, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
 	if(isset($_POST['registerButton']) == TRUE){
 		
-		if(isset($this->newUsername) == FALSE || strlen($this->strippedUsername) < 3 && $this->DangerousUsername == FALSE){	
+		if(isset($this->requestedUsername) == FALSE || strlen($this->strippedUsername) < 3 && $this->DangerousUsername == FALSE){	
 			array_push($this->messageArray, "Användarnamnet måste ha minst 3 tecken");
-			$this->user = $this->strippedUsername;
+			$this->userToRegister = $this->strippedUsername;
 		}else{
 			$this->UsernameOK = TRUE;
 		}
 		
-		if(isset($this->newUsername) == FALSE || strlen($this->newPassword) < 6 && $this->DangerousUsername == FALSE){
+		if(isset($this->requestedUsername) == FALSE || strlen($this->requestedPassword) < 6 && $this->DangerousUsername == FALSE){
 			array_push($this->messageArray, "Lösenordet måste ha minst 6 tecken");
-			$this->user = $this->strippedUsername;
+			$this->userToRegister= $this->strippedUsername;
 		}else{
-				if($_POST['repeatedNewPassword'] != $this->newPassword){
-					$this->user = $this->strippedUsername;
+				if($_POST['repeatedNewPassword'] != $this->requestedPassword){
+					$this->userToRegister = $this->strippedUsername;
 					array_push($this->messageArray, "Lösenordet stämmer inte");
 				}else{
 					$this->PasswordOK = TRUE;
@@ -66,14 +66,14 @@ public function RegisterValidation(){
 		}
 		
 		if($this->UsernameOK == TRUE && $this->PasswordOK == TRUE && $this->DangerousUsername == FALSE){
-			$this->available = $this->model->CheckIfUsernameIsAvailable($this->newUsername);
+			$this->available = $this->model->CheckIfUsernameIsAvailable($this->requestedUsername);
 			if($this->available == TRUE){
-				$this->model->Save($this->strippedUsername, $this->newPassword);
+				$this->model->Save($this->strippedUsername, $this->requestedPassword);
 				header('Location: index.php');
 			}
 				
 			else{
-				$this->user = $this->strippedUsername;
+				$this->userToRegister = $this->strippedUsername;
 					array_push($this->messageArray, "Användarnamnet är upptaget!");
 
 				
@@ -82,7 +82,7 @@ public function RegisterValidation(){
 			if($this->DangerousUsername == TRUE){
 					array_push($this->messageArray, "Användarnamnet innehåller ogiltiga tecken!");
 				}
-			$this->user = $this->strippedUsername;
+			$this->userToRegister = $this->strippedUsername;
 		}
 		}
 
@@ -132,7 +132,7 @@ public function echoHTML($msg){
 			<p>$this->errorMessages</p>
 			<label for='newUsername'>Användarnamn: </label>
 			<br>
-			<input type='text' name='newUsername' id='newUsername' value='$this->user'/>
+			<input type='text' name='newUsername' id='newUsername' value='$this->userToRegister'/>
 			<br>
 			<label for='newPassword'>Lösenord: </label>
 			<br>
@@ -159,14 +159,14 @@ public function echoHTML($msg){
 				$User Inloggad!
 			</h2>
 			$msg
-			$this->msg
+			$this->message
 			
-			<form action='uploadView.php?upload' method='post'>
+			<form action='uploadIndex.php?upload' method='post'>
 				<input type='submit'  name='goToUpload' value='Upload image'/>
 				<br>
 			</form>
 			
-			<form action='galleryView.php?gallery' method='post'>
+			<form action='galleryIndex.php?gallery' method='post'>
 				<input type='submit'  name='goToUpload' value='Galleri'/>
 				<br>
 			</form>
@@ -189,7 +189,7 @@ public function echoHTML($msg){
 		</h2>
 		<a href='index.php?register'>Register</a>
 	<h3>$msg</h3>
-    <h3>$this->msg</h3> 
+    <h3>$this->message</h3> 
        <form id='login'   method='post'>
        		
     		<label for='username'>Username:</label>
@@ -227,7 +227,7 @@ public function didUserPressLogin(){
 	    
 	    		
 		if($this->password == "d41d8cd98f00b204e9800998ecf8427e" || $this->password == NULL){
-		    $this->msg = "Password is empty.";
+		    $this->message = "Password is empty.";
 			
 		    $this->usrValue = $this->username;
 		    
@@ -238,7 +238,7 @@ public function didUserPressLogin(){
 	        
 		if($this->username == "" || $this->username == NULL){
 		    $this->usrValue = $this->username;
-		    $this->msg = "Username is missing.";
+		    $this->message = "Username is missing.";
 		}
 
 

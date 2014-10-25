@@ -11,11 +11,11 @@ class galleryViewHTML{
 		private $commentArray = array();
 		private $uploader;
 		private $displayedImage;
-		private $deleteCommentButton;
-		private $editCommentButton;
-		private $comment = array();
-		private $commentID;
-		private $commentArrayLength;
+		// private $deleteCommentButton;
+		// private $editCommentButton;
+		//private $comment = array();
+		private $galleryCommentID;
+		private $galleryCommentArrayLength;
 		private $commentValue;
 		private $validMessage;
 		private $commentArray2;
@@ -52,7 +52,7 @@ class galleryViewHTML{
 			//Loopar igenom alla bilder och gör dom till klickbara länkar.
 
 			foreach($body as $value){
-				array_push($this->images, "<div class='gallerypics'><a href='galleryView.php?gallery&image=$value'><img src='./UploadedImages/$value'></a></div>");
+				array_push($this->images, "<div class='gallerypics'><a href='galleryIndex.php?gallery&image=$value'><img src='./UploadedImages/$value'></a></div>");
 			}
 			//Sätter ihop allt i arrayen för att sedan trycka ut det i html.
 			$this->implodedArray = implode("", $this->images);
@@ -102,15 +102,15 @@ class galleryViewHTML{
 				$this->commentArray = $this->galleryModel->GetCommentSession();
 				
 				//Kollar längden på arrayen ovanför.
-				$this->commentArrayLength = count($this->commentArray);
+				$this->galleryCommentArrayLength = count($this->commentArray);
 				
 				//Hämtar ut alla kommentarer från databasen som en string 
 				$this->commentArray2 = $this->galleryModel->GetCommentsFromDB($this->displayedImage);
 				
 				
 				
-					$this->deleteCommentButton = "";
-					$this->editCommentButton = "";
+					// $this->deleteCommentButton = "";
+					// $this->editCommentButton = "";
 		
 				//Visa ta bort en bild-knapp
 				if($this->loggedInUser == $this->uploader && $this->uploader != "" || $this->loggedInUser == "Admin" && $this->uploader != ""){
@@ -118,11 +118,13 @@ class galleryViewHTML{
 				}
 				
 				//Borde byta namn på funktionen eftersom den inte returnerar true eller false utan vilken knapp som användaren tryckt på.
-				$this->commentID = $this->didUserPressDeleteComment();
+				$this->galleryCommentID = $this->didUserPressDeleteComment();
+				
+				
 				//Var tvungen till att lägga header location här för att ta bort kommentar, i controllern ville den inte köra ordentligt.
 				//Går endast att ta bort sina egna kommentarer även fast man ändrar hidden value. Någon annans kommentar går ej att ta bort.
-				if($this->commentID != "" && $this->loggedInUser == $this->commentArray[$this->commentID]['user'] || $this->commentID != "" && $this->loggedInUser == "Admin"){
-					header('Location: galleryView.php?gallery&image=' . $this->displayedImage);
+				if($this->galleryCommentID != "" && $this->loggedInUser == $this->commentArray[$this->galleryCommentID]['user'] || $this->galleryCommentID != "" && $this->loggedInUser == "Admin"){
+					header('Location: galleryIndex.php?gallery&image=' . $this->displayedImage);
 				}
 				
 				
@@ -130,11 +132,11 @@ class galleryViewHTML{
 				
 				//TODO Skapa en echo som visar det vanliga html dokumentet
 				//Användaren trycker på edit så visas textbox med kommentaren ifyllt
-				$this->commentID = $this->didUserPressEditComment(); 
-				if($this->commentID != ""){
-					$this->galleryModel->SetEditCommentIDSession($this->commentID);
+				$this->galleryCommentID = $this->didUserPressEditComment(); 
+				if($this->galleryCommentID != ""){
+					$this->galleryModel->SetEditCommentIDSession($this->galleryCommentID);
 
-					$commentToEditValue = $this->galleryModel->GetCommentToEdit($this->commentArray[$this->commentID]['commentID']);
+					$commentToEditValue = $this->galleryModel->GetCommentToEdit($this->commentArray[$this->galleryCommentID]['commentID']);
 					$editCommentTextField = "<form method='post'>
 												<input type='text' name='editCommentTextField' value='$commentToEditValue'></input>
 												<input type='submit' name='newComment' value='Post'></input>
@@ -160,7 +162,7 @@ class galleryViewHTML{
 				<div id='content'>
 					<header><h1>Mickes fotosida</h1></header>
 					<div id='pageNav'><h2>Gallery</h2></div>
-					<a href='galleryView.php?gallery'>Tillbaka</a><br>
+					<a href='galleryIndex.php?gallery'>Tillbaka</a><br>
 					
 					<div id='oneImage'>	
 				 		$this->deleteButton
@@ -210,7 +212,7 @@ class galleryViewHTML{
 		}
 		public function didUserPressEditComment(){
 			
-			for ($i=0; $i < $this->commentArrayLength; $i++) { 
+			for ($i=0; $i < $this->galleryCommentArrayLength; $i++) { 
 				if(isset($_POST['editComment' .$i.''])){
 					$this->galleryModel->SetCommentEditIDSession($_POST['editCommentshit' . $i . '']);
 			
@@ -221,7 +223,7 @@ class galleryViewHTML{
 
 		public function didUserPressDeleteComment(){
 			
-			for ($i=0; $i < $this->commentArrayLength; $i++) { 
+			for ($i=0; $i < $this->galleryCommentArrayLength; $i++) { 
 				if(isset($_POST['deleteComment' .$i.''])){
 					$this->galleryModel->SetCommentDeleteIDSession($_POST['deleteCommentshit' . $i . '']);
 				
