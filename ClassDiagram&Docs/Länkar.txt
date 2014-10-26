@@ -1,0 +1,16 @@
+Här finns all dokumentation.
+
+Krav:
+https://docs.google.com/document/d/1KFKPa_Kx9g0mm-WmakeyxmKd9YUy9To7nBWJp3uVarc/edit?usp=sharing
+
+Källhänvisning:
+https://docs.google.com/document/d/1AlzLPNgvxVk2MvrnbNMjHEeILaLCsQwoAf2xWgmw-ag/edit?usp=sharing
+
+Testfall:
+https://docs.google.com/document/d/1wmlpSb6eBSmzH7xJwkECvj6Gn-CQSYB758zcD35w0hU/edit?usp=sharing
+
+Installationsguide:
+https://docs.google.com/document/d/1mGWfFPQ8VcDqDHOz_fzkCy_JTEspCxZG7OK2_764szk/edit?usp=sharing
+
+Klassdiagram:
+https://docs.google.com/document/d/1uyTUgk_WCH_6LKyhUdTCxhTmClXmMXMfM5Y41hzhRwo/edit?usp=sharing
