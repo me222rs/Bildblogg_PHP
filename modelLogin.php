@@ -78,12 +78,12 @@
 		//$newPassword = md5($newPassword);
 		//$this->username = $newUsername;
 		//$this->password = $newPassword;
-		$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
-    	if (mysqli_connect_errno($connection)){
+		//$connection = mysqli_connect("127.0.0.1", "root", "", "loginlabb4");
+    	if (mysqli_connect_errno($this->dbConnection)){
         	echo "MySql Error: " . mysqli_connect_error();
     	}
 		
-    	mysqli_query($connection,"INSERT member SET Username = '$this->newUsername', Password = '$this->newPassword'");
+    	mysqli_query($this->dbConnection,"INSERT member SET Username = '$this->newUsername', Password = '$this->newPassword'");
 	
 		mysqli_close($connection);
 		$_SESSION['successUser'] = $this->newUsername;

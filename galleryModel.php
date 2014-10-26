@@ -18,12 +18,24 @@ require_once 'modelLogin.php';
 		private $arrayWithComments = array();
 		private $loggedIn;
 		private $editCommentID;
+		private $commentErrorMessage;
 		
 	
    	 		public function __construct(){
         		
 				$this->db = new PDO($this->connectionString, $this->connectionUsername, $this->connectionPassword);	
     		}
+			
+		
+		public function UnsetCommentErrorMessage(){
+			$_SESSION['CommentErrorMessage'] = NULL;
+		}	
+		public function GetCommentErrorMessage(){
+			return $_SESSION['CommentErrorMessage'];
+		}	
+		public function SetCommentErrorMessage($commentErrorMess){
+			$_SESSION['CommentErrorMessage'] = $commentErrorMess;
+		}	
 			
 		public function SaveValidationMessage($validMessage){
 			$_SESSION['validationMessage'] = $validMessage;
@@ -69,6 +81,7 @@ require_once 'modelLogin.php';
 			}
 			
 			public function EditComment($commentID, $comment){
+				
 				$this->loggedIn = $this->GetLoggedInUser();
 				$commentArray = $this->GetCommentsFromArray();
 				$this->editCommentID = $this->GetCommentToEditSession();
@@ -79,7 +92,11 @@ require_once 'modelLogin.php';
 
 				if($this->commentUser == $this->loggedIn){
 					
-									$this->comment = $comment;
+				$this->comment = $comment;
+				if(strpos($this->comment,'<') !== false || strpos($this->comment,'>') !== false){
+					$this->SetCommentErrorMessage("Posten innehåller ogiltiga tecken!");
+					return;
+				}
 				
 				if($this->commentID != ""){
 					$this->editCommentID = $this->commentID;	
@@ -93,9 +110,11 @@ require_once 'modelLogin.php';
 				$this->stmt->execute(array($this->comment, $this->commentID));
 				$affected_rows = $this->stmt->rowCount();
 				if($affected_rows != ""){
+					$this->SetCommentErrorMessage("Redigeringen lyckades!");
 					return true;
 				} 
 				else{
+					$this->SetCommentErrorMessage("Redigeringen lyckades inte!");
 					return false;
 				}
 				}
@@ -143,14 +162,14 @@ require_once 'modelLogin.php';
 				$this->comment = $comment;
 				$this->user = $user;
 				if(strpos($this->comment,'<') !== false || strpos($this->comment,'>') !== false){
-					$_SESSION['PostMessage'] = "Posten innehåller ogiltiga tecken!";
-					return;
+					$this->SetCommentErrorMessage("Posten innehåller ogiltiga tecken!");
+					return FALSE;
 				}
 	
 				$this->stmt = $this->db->prepare("INSERT INTO comments(comment,imageName,user) VALUES(:comment,:imageName,:user)");
 					$this->stmt->execute(array(':comment' => $this->comment, ':imageName' => $this->displayedGalleryImage, ':user' => $this->user));
 				
-				
+				return TRUE;
 			}
 			
 			public function GetCommentsFromDB($displayedGalleryImage){

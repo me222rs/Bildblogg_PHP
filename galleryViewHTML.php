@@ -16,27 +16,13 @@ class galleryViewHTML{
 		private $commentValue;
 		private $validMessage;
 		private $commentArray2;
+		private $commentErrorMess;
 		
 		
 	public	function __construct() {
         $this->galleryModel = new galleryModel();
 	}
 		
-		public function ValidateComment(){
-			//TODO Fixa längden på poster
-			
-			//if(strlen($postedComment) > 200){
-			//	echo "kommentaren är för lång";
-			//	return $postedComment;
-			//}
-			
-			if(strpos($this->postedComment,'<') !== false || strpos($this->postedComment,'>') !== false){
-				
-				return "The comment contains not valid characters!";
-			}
-			
-			return "";
-		}
 		
 		
 		
@@ -53,6 +39,8 @@ class galleryViewHTML{
 			}
 			//Sätter ihop allt i arrayen för att sedan trycka ut det i html.
 			$this->implodedArray = implode("", $this->images);
+			$this->commentErrorMess = $this->galleryModel->GetCommentErrorMessage();
+			$this->galleryModel->UnsetCommentErrorMessage();
 			
             echo "
 				<!DOCTYPE html>
@@ -67,7 +55,7 @@ class galleryViewHTML{
 				<header><h1>Mickes fotosida</h1></header>
 					<div id='pageNav'><h2>Gallery</h2></div>
 					<a href='index.php'>Tillbaka</a><br>
-					
+					$this->commentErrorMess
 					
 				 	<div id='galleryDiv'>
 						$this->implodedArray
@@ -128,10 +116,10 @@ class galleryViewHTML{
 					$this->galleryModel->SetEditCommentIDSession($this->galleryCommentID);
 
 					$commentToEditValue = $this->galleryModel->GetCommentToEdit($this->commentArray[$this->galleryCommentID]['commentID']);
-					$editCommentTextField = "<form method='post'>
-												<input type='text' name='editCommentTextField' value='$commentToEditValue'></input>
+					$editCommentTextField = "<div id='editTextBox'><form method='post'>
+												<textarea name='editCommentTextField' value='' cols='40' rows='4' maxlength='500'>$commentToEditValue</textarea>
 												<input type='submit' name='newComment' value='Post'></input>
-											</form>";
+											</form></div>";
 				}
 			
 			
@@ -140,6 +128,9 @@ class galleryViewHTML{
 				$validateMsg = $this->galleryModel->GetValidationMessage();
 				$this->galleryModel->UnsetValidationMessage();
 				$image = $this->getImageQueryString();
+				
+				$this->commentErrorMess = $this->galleryModel->GetCommentErrorMessage();
+				//$this->galleryModel->UnsetCommentErrorMessage();
 				
 				echo "
 				<!DOCTYPE html>
@@ -154,7 +145,7 @@ class galleryViewHTML{
 					<header><h1>Mickes fotosida</h1></header>
 					<div id='pageNav'><h2>Gallery</h2></div>
 					<a href='galleryIndex.php?gallery'>Tillbaka</a><br>
-					
+	
 					<div id='oneImage'>	
 				 		$this->deleteButton
 				 		$this->deleteMessage
@@ -165,9 +156,11 @@ class galleryViewHTML{
 					$validateMsg
 					<form method='post' id='commentField'>
 						<h2>Comment</h2>
-						<textarea name='comment' id='comment' cols='40' rows='4'></textarea><br>
+						<p>Max 500 tecken! Ogiltiga tecken är < & ></p>
+						<textarea name='comment' id='comment' cols='40' rows='4' maxlength='500'></textarea><br>
 						<input type='submit' name='PostComment' value='Posta'>
 					</form>
+					$this->commentErrorMess
 					$editCommentTextField
 					
 					<div id='pageNav'><h3>Comments</h3></div>
@@ -180,7 +173,7 @@ class galleryViewHTML{
 				</body>
 				</html>
 		";
-			
+			$this->galleryModel->UnsetCommentErrorMessage();
 		//}
 		}
 
@@ -223,8 +216,16 @@ class galleryViewHTML{
 			}
 		}
 		
+		public function didUserPressPostComment2(){
+			if(isset($_POST['comment'])){
+				return TRUE;
+			}
+			return FALSE;
+		}
+		
 		public function didUserPressPostComment(){
 			if(isset($_POST['comment'])){
+				
 				return $_POST['comment'];
 			}
 			return "";

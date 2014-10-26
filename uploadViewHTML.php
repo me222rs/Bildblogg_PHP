@@ -25,6 +25,9 @@
 					<title>Upload some shit</title>
 				</head>
 				<body>
+				<div id='content'>
+				<header><h1>Mickes Fotosida</h1></header>
+				
 					<h2>Upload images</h2>
 					<a href='index.php'>Tillbaka</a>
 					<p>Filformatet måste vara av typen .jpg, inte vara större än 25mb och inte ha ett namn som är över 40 tecken.</p>
@@ -37,6 +40,8 @@
 					</form>
 				
 					$body
+					<footer>Mickes Fotosida</footer>
+					</div>
 				</body>
 				</html>
 		";

@@ -49,14 +49,22 @@ require_once 'viewHTML.php';
 				
 				
 				//Om användaren postar en kommentar
-				if($this->galleryViewHTML->didUserPressPostComment() != ""){
-				
+			if($this->galleryViewHTML->didUserPressPostComment2() == TRUE){
 					$this->postedComment = $this->galleryViewHTML->didUserPressPostComment();
 					$validMessage = "";
 					if($validMessage == ""){
+						$this->galleryModel->SetCommentErrorMessage("Kommentaren postades!");
+						$postSuccess = $this->galleryModel->PostComment($this->image, $this->galleryViewHTML->didUserPressPostComment(), $this->loggedInUser);
+						if($postSuccess == TRUE){
+							
+							
+							header('Location: galleryIndex.php?gallery&image=' . $this->image);
+						}
+						// elseif($postSuccess == FALSE){
+							// $this->galleryModel->SetCommentErrorMessage("Något gick fel!");
+							// header('Location: galleryIndex.php?gallery&image=' . $this->image);
+						// }
 						
-						$this->galleryModel->PostComment($this->image, $this->galleryViewHTML->didUserPressPostComment(), $this->loggedInUser);
-						header('Location: galleryIndex.php?gallery&image=' . $this->image);
 					}
 					
 				}
@@ -67,9 +75,9 @@ require_once 'viewHTML.php';
 				
 				if($this->galleryViewHTML->didUSerPressDelete() && $uploader == $this->loggedInUser || $this->galleryViewHTML->didUSerPressDelete() && $this->loggedInUser == "Admin"){
 					$this->galleryModel->DeleteImageFromFolder($this->image);
+					$this->galleryModel->SetCommentErrorMessage("Bilden togs bort!");
 					header('Location: galleryIndex.php?gallery');
-					//$this->msg = "Image removed successfully!";
-					//return $this->galleryViewHTML->echoHTMLGallery($this->imagesArray, $this->msg);
+
 					
 				}
 				
@@ -87,6 +95,7 @@ require_once 'viewHTML.php';
 					$this->galleryModel->DeleteComment($this->commentArray[$this->commentDeleteID]['commentID']);
 					//$_SESSION['commentDeleteID'] = NULL;
 					//$this->galleryModel->UnsetCommentsArray();
+					$this->galleryModel->SetCommentErrorMessage("Kommentaren togs bort!");
 					$this->galleryModel->UnsetCommentDeleteSession();
 					
 					
@@ -105,11 +114,12 @@ require_once 'viewHTML.php';
 					
 					$this->postedComment = $this->galleryViewHTML->didUserPressPostEditedComment();
 					$commentValue = $this->galleryViewHTML->GetEditValueFromTextbox();
-					$validMessage = $this->galleryViewHTML->ValidateComment();
+					//$validMessage = $this->galleryViewHTML->ValidateComment();
 					
 					if($validMessage == ""){
 						$success = $this->galleryModel->EditComment($this->commentArray[$this->editCommentID], $commentValue);
 						if($success == TRUE){
+							
 							header('Location: galleryIndex.php?gallery&image=' . $this->image);
 						}
 					}
@@ -121,7 +131,7 @@ require_once 'viewHTML.php';
 				
 				
 				
-				return $this->galleryViewHTML->echoHTML($this->imagesArray);
+				return $this->galleryViewHTML->echoHTML($this->imagesArray, $this->msg);
 			}
 			if(!isset($this->loggedInUser)){
 				header('Location: index.php');

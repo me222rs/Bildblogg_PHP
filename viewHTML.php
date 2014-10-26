@@ -124,9 +124,10 @@ public function echoHTML($msg){
 			if($this->didUserPressRegister()){
 			return $ret ="
 			<form METHOD='post'>
-			<h1>
+			<header><h1>
 				Ej Inloggad, Registrerar användare
-			</h1>
+			</h1></header>
+			<div id='content'>
 			<a href='index.php'>Tillbaka</a>
 			<br>
 			<p>$this->errorMessages</p>
@@ -144,7 +145,11 @@ public function echoHTML($msg){
 			<br>
 			<input type='submit' id='registerButton' name='registerButton' value='Registrera'/>
 			</form>
+			
 			" . $dat . "
+		
+			<footer>Mickes Fotosida</footer>
+				</div>
         ";
 	
 			}
@@ -152,9 +157,10 @@ public function echoHTML($msg){
     if($this->model->loginStatus()){
     	
         $ret ="
-			<h1>
-				Laboration_2
-			</h1>
+        <div id='content'>
+			<header><h1>
+				Mickes Fotosida
+			</h1></header>
 			<h2>
 				$User Inloggad!
 			</h2>
@@ -176,14 +182,17 @@ public function echoHTML($msg){
 		    	<input type='submit'  name='logOut' value='Logga ut'/>
 			</form>
 			" . $dat . "
+			<footer>Mickes Fotosida</footer>
+			</div>
         ";
     }
     //Om inloggningen misslyckades
     else{
         $ret = "
-        <h1>
-			Laboration_2
-		</h1>
+        <div id='content'>
+        <header><h1>
+			Mickes Fotosida
+		</h1></header>
 		<h2>
 				Ej inloggad $this->success
 		</h2>
@@ -207,7 +216,8 @@ public function echoHTML($msg){
 		 <div>
 		 <p>$dat <br> </p>
 		 
-		
+		</div>
+		<footer>Mickes Fotosida</footer>
 		 </div>";
         
     }
