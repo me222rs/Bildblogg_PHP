@@ -90,10 +90,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#009efc32', e
 	width: 60%;
 	word-wrap: break-word;
 }
-.comments{
-	
-}
-#comments {
+
+.comments {
 	border-radius: 5px;
 	
 	margin-left: auto;

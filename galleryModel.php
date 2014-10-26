@@ -205,7 +205,7 @@ require_once 'modelLogin.php';
 					}
 					
 					//array med alla kommentarer redo för utskrift
-					array_push($comment, "<div class='commenttag'><form name='comments' method='post' id='comments'> 
+					array_push($comment, "<div class='commenttag'><form name='comments' method='post' class='comments'> 
 											<input type='hidden' name='deleteCommentshit" , "$i", "' value='", "$i" , "'>"
 											."  $this->deleteCommentButton $this->editCommentButton" , "<p><b>" , $this->arrayWithComments[$i]['user'] , "</b></p>", "<p>" 
 					, $this->arrayWithComments[$i]['comment'], "</p><br><em>", $this->arrayWithComments[$i]['date'], "</em></form><div>");
