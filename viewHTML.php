@@ -110,13 +110,10 @@ public function echoHTML($msg){
 	$User = $this->model->GetLoggedInUser();
 	$this->errorMessages = implode(" och ", $this->messageArray);
     $ret="";
-    		//Clock function
-		/*
-		 * nl2br allows \n within variable
-		 * strftime let us print date from our locale time
-		 */
+    		
+	//Källa https://github.com/jn222na/Laboration_2_Login
     $dat = nl2br(ucwords(strftime("%Aen den %d %B.\n " . "År" . " %Y.\n Klockan " . "Är" . " %X.")));
-	//Min kod
+	//Min kod börjar här. 
 			
 
 			
@@ -151,7 +148,7 @@ public function echoHTML($msg){
 			<footer>Mickes Fotosida</footer>
 				</div>
         ";
-	
+	//Min kod slutar här
 			}
     //Om inloggningen lyckades
     if($this->model->loginStatus()){
@@ -226,7 +223,9 @@ public function echoHTML($msg){
 
 
 
-//Om användaren klickar login och det är korrekt 
+//Om användaren klickar login och det är korrekt
+//Källa https://github.com/jn222na/Laboration_2_Login
+//Jag har ändrat på ett par ställen i denna funktionen för att lösenordet inte ska vara hårdkodat 
 public function didUserPressLogin(){
 
 	
@@ -259,24 +258,27 @@ public function didUserPressLogin(){
 	    
 	}
 	//Get funktioner
+	//Källa https://github.com/jn222na/Laboration_2_Login
 	public function getUsername(){
 	    if(isset($_POST['username'])){
 	        return  $_POST['username'];
 	    }
 	}
+	//Källa https://github.com/jn222na/Laboration_2_Login
 	public function getPassword(){
 	    if(isset($_POST['password'])){
 	        return  md5($_POST['password']);
 	    }
 	}
-	
+	//Källa https://github.com/jn222na/Laboration_2_Login
 	public function getCookieUsername(){
 		return $_COOKIE['cookieUsername'];
 	}
-	
+	//Källa https://github.com/jn222na/Laboration_2_Login
 	public function getCookiePassword(){
 		return $_COOKIE['cookiePassword'];
 	}
+	//Källa https://github.com/jn222na/Laboration_2_Login
 	public function checkedRememberBox(){
 	    if(isset($_POST['checkSave'])){
 	        return TRUE;
@@ -286,6 +288,7 @@ public function didUserPressLogin(){
 	    }
 	}
 	//Sätter kakor och krypterar lösenord
+	//Källa https://github.com/jn222na/Laboration_2_Login
 	public function rememberUser(){
 	              setcookie('cookieUsername', $_POST['username'], time()+60*60*24*30);
 				  setcookie('cookiePassword', md5($_POST['password']), time()+60*60*24*30); //Fixa så att lösenordet krypteras innan skickas till db.
@@ -295,6 +298,7 @@ public function didUserPressLogin(){
 				 $this->message ="Login successfull and you will be remembered.";
 	}
 	//Kollar om kakorna är satta
+	//Källa https://github.com/jn222na/Laboration_2_Login
 	public function checkCookie(){
 	    if(isset($_COOKIE['cookieUsername']) && isset($_COOKIE['cookiePassword'])){
 			return true;
@@ -303,12 +307,12 @@ public function didUserPressLogin(){
 			return false;
 		}
 	}
-	
+	//Källa https://github.com/jn222na/Laboration_2_Login
 	public function removeCookies() {
 	    setcookie ('cookieUsername', "", time() - 3600);
 		setcookie ('cookiePassword', "", time() - 3600);
 	}
-	
+	//Källa https://github.com/jn222na/Laboration_2_Login
 	public function didUserPressLogout(){
 	    if(isset($_POST['logOut'])){
 	        return TRUE;
@@ -316,7 +320,7 @@ public function didUserPressLogin(){
 	        return FALSE;
 	    }
 	}
-	//Min kod
+	//Min kod nedan
 	public function didUserPressRegister(){
 		if(isset($_GET['register'])){
 			return TRUE;

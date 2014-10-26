@@ -1,4 +1,5 @@
 <?php
+//Källa https://github.com/jn222na/Laboration_2_Login
 require_once 'controller.php';
 require_once 'htmlView.php';
 session_start();

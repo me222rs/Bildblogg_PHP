@@ -9,13 +9,15 @@ require_once 'modelLogin.php';
 		  private $mess = "";
 		  private $username;
 		  private $password;
-		  
+		  //Källa https://github.com/jn222na/Laboration_2_Login
           public function __construct() {
               $this->model = new modelLogin();
               $this->view = new viewHTML($this->model);
               //$this->registerView = new RegisterView();
           }
-          
+          //Källa https://github.com/jn222na/Laboration_2_Login
+          //Denna funktion består till stor del av kod från källan ovanför
+          //
           public function login(){
               $this->username = $this->view->getUsername();
               $this->password = $this->view->getPassword();
@@ -35,7 +37,7 @@ require_once 'modelLogin.php';
 				}
 			}
 		}
-			
+			//Min if sats
 			 if($this->view->didUserPressRegister()){
     			 
 				 $this->mess = "Du har tryckt på registrera!";

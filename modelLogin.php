@@ -91,6 +91,7 @@
 	}
 	
     //Lyckad inloggning sätt sessionen till webbläsaren användaren loggade in i
+    
     public function checkLogin($usernameToCheck, $passwordToCheck) {
     	//Min kod
     	$this->usernameToCheck = $usernameToCheck;
@@ -121,11 +122,13 @@
 	   		return $_SESSION['login'];
 	   }
 	   
+	   //Källa https://github.com/jn222na/Laboration_2_Login
         public function destroySession(){
             session_unset();
             session_destroy();
         }
         //kollar om sessionen är satt och att den är samma webbläsare som vid inloggning
+        //Källa https://github.com/jn222na/Laboration_2_Login
         public function loginStatus(){
                  if(isset($_SESSION['checkBrowser']) && $_SESSION["checkBrowser"] === $_SERVER['HTTP_USER_AGENT']){
                      if(isset($_SESSION['login'])){
@@ -137,7 +140,7 @@
                 }
             
         }
-        
+        //Källa https://github.com/jn222na/Laboration_2_Login
         public function checkLoginCookie($usernameInCookie,$passwordInCookie){
         	//var_dump($username);
         	//var_dump($password);

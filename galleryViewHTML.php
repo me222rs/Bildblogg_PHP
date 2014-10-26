@@ -178,7 +178,7 @@ class galleryViewHTML{
 		//}
 		}
 
-		
+		//Hämtar värdet från textboxen för redigering
 		public function GetEditValueFromTextbox(){
 			return $_POST['editCommentTextField'];
 		}
@@ -189,12 +189,14 @@ class galleryViewHTML{
 			}
 			return TRUE;
 		}
+		//Kollar om användaren tryckt på redigera
 		public function didUserPressEditComment2(){
 			if(isset($_POST['editComment'])){
 				return TRUE;
 			}
 			return fALSE;
 		}
+		//returnerar i vilket kommentarsformulär användaren tryckt på redigera
 		public function didUserPressEditComment(){
 			
 			for ($i=0; $i < $this->galleryCommentArrayLength; $i++) { 
@@ -205,7 +207,7 @@ class galleryViewHTML{
 				}
 			}
 		}
-
+		//returnerar i vilket kommentarsformulär användaren tryckt på delete
 		public function didUserPressDeleteComment(){
 			
 			for ($i=0; $i < $this->galleryCommentArrayLength; $i++) { 
@@ -216,14 +218,14 @@ class galleryViewHTML{
 				}
 			}
 		}
-		
+		// HAr användaren postat en kommentar?
 		public function didUserPressPostComment2(){
 			if(isset($_POST['comment'])){
 				return TRUE;
 			}
 			return FALSE;
 		}
-		
+		//returnerar den postade kommentaren
 		public function didUserPressPostComment(){
 			if(isset($_POST['comment'])){
 				
