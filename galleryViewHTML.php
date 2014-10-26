@@ -17,6 +17,7 @@ class galleryViewHTML{
 		private $validMessage;
 		private $commentArray2;
 		private $commentErrorMess;
+		private $image;
 		
 		
 	public	function __construct() {
@@ -35,7 +36,7 @@ class galleryViewHTML{
 			//Loopar igenom alla bilder och gör dom till klickbara länkar.
 
 			foreach($body as $value){
-				array_push($this->images, "<div class='gallerypics'><a href='galleryIndex.php?gallery&image=$value'><img src='./UploadedImages/$value'></a></div>");
+				array_push($this->images, "<div class='gallerypics'><a href='galleryIndex.php?gallery&image=$value'><img src='./UploadedImages/$value' alt='$value'></a></div>");
 			}
 			//Sätter ihop allt i arrayen för att sedan trycka ut det i html.
 			$this->implodedArray = implode("", $this->images);
@@ -53,7 +54,7 @@ class galleryViewHTML{
 				<body>
 				<div id='content'>
 				<header><h1>Mickes fotosida</h1></header>
-					<div id='pageNav'><h2>Gallery</h2></div>
+					<div class='pageNav'><h2>Gallery</h2></div>
 					<a href='index.php'>Tillbaka</a><br>
 					$this->commentErrorMess
 					
@@ -127,7 +128,7 @@ class galleryViewHTML{
 				
 				$validateMsg = $this->galleryModel->GetValidationMessage();
 				$this->galleryModel->UnsetValidationMessage();
-				$image = $this->getImageQueryString();
+				$this->image = $this->getImageQueryString();
 				
 				$this->commentErrorMess = $this->galleryModel->GetCommentErrorMessage();
 				//$this->galleryModel->UnsetCommentErrorMessage();
@@ -143,13 +144,13 @@ class galleryViewHTML{
 				<body>
 				<div id='content'>
 					<header><h1>Mickes fotosida</h1></header>
-					<div id='pageNav'><h2>Gallery</h2></div>
+					<div class='pageNav'><h2>Gallery</h2></div>
 					<a href='galleryIndex.php?gallery'>Tillbaka</a><br>
 	
 					<div id='oneImage'>	
 				 		$this->deleteButton
 				 		$this->deleteMessage
-						<img src='./UploadedImages/$image'>
+						<img src='./UploadedImages/$this->image' alt='$this->image'>
 						<p>Uploader: $this->uploader</p>
 					</div>
 					
@@ -163,7 +164,7 @@ class galleryViewHTML{
 					$this->commentErrorMess
 					$editCommentTextField
 					
-					<div id='pageNav'><h3>Comments</h3></div>
+					<div class='pageNav'><h3>Comments</h3></div>
 					<div id='CommentBox'>
 						
 						$this->commentArray2

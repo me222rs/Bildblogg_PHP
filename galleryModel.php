@@ -6,6 +6,8 @@ require_once 'modelLogin.php';
 		private $connectionString = "mysql:host=127.0.0.1;dbname=loginlabb4;charset=utf8";
 		private $connectionUsername = "root";
 		private $connectionPassword = "";
+		private $connectionHost = "127.0.0.1";
+		private $connectionDBName = "loginlabb4";
 		private $db;
 		private $stmt;
 		private $commentID;
@@ -190,23 +192,23 @@ require_once 'modelLogin.php';
 				for($i = 0; $i < $commentArrayLength; $i++){
 					//Visar knappar ifall att den inloggade användaren är den som lagt upp kommentaren
 					
-					if($this->arrayWithComments[$i]['user'] == $this->loggedIn && $this->arrayWithComments[$i]['user'] != "Admin"){
+					if($this->arrayWithComments[$i]['user'] == $this->loggedIn){
 						$this->deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
 						$this->editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
 					}
 					
 					
 					//Visar alla knappar för admin
-					if($this->arrayWithComments[$i]['user'] == "Admin" && $this->arrayWithComments[$i]['user'] == $this->loggedIn){
+					if($this->loggedIn == "Admin"){
 						$this->deleteCommentButton = "<input type='submit' name='deleteComment" . $i . "' value='Delete'>";
 						$this->editCommentButton = "<input type='submit' name='editComment" . $i . "' value='Edit'>";	
 					}
 					
 					//array med alla kommentarer redo för utskrift
-					array_push($comment, "<form name='comments' method='post' id='comments'> 
+					array_push($comment, "<div class='commenttag'><form name='comments' method='post' id='comments'> 
 											<input type='hidden' name='deleteCommentshit" , "$i", "' value='", "$i" , "'>"
 											."  $this->deleteCommentButton $this->editCommentButton" , "<p><b>" , $this->arrayWithComments[$i]['user'] , "</b></p>", "<p>" 
-					, $this->arrayWithComments[$i]['comment'], "</p><br><em>", $this->arrayWithComments[$i]['date'], "</em></form>");
+					, $this->arrayWithComments[$i]['comment'], "</p><br><em>", $this->arrayWithComments[$i]['date'], "</em></form><div>");
 					
 					$this->deleteCommentButton = "";
 					$this->editCommentButton = "";
@@ -253,7 +255,7 @@ require_once 'modelLogin.php';
 			
 			public function GetAllImagesFromDB(){
 				
-				$connection = mysqli_connect("127.0.0.1", $this->connectionUsername, $this->connectionPassword, "loginlabb4");
+				$connection = mysqli_connect($this->connectionHost, $this->connectionUsername, $this->connectionPassword, $this->connectionDBName);
     			if (mysqli_connect_errno($connection)){
         			echo "MySql Error: " . mysqli_connect_error();
     			}

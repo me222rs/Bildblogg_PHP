@@ -99,7 +99,7 @@
         	echo "MySql Error: " . mysqli_connect_error();
     	}
 
-    	$query = mysqli_query($this->dbConnection,"SELECT * FROM member WHERE username='$this->usernameToCheck' && password='$this->passwordToCheck'");
+    	$query = mysqli_query($this->dbConnection,"SELECT * FROM member WHERE BINARY username='$this->usernameToCheck' && password='$this->passwordToCheck'");
     	$count = mysqli_num_rows($query);
     	$row = mysqli_fetch_array($query);
 

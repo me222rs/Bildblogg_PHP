@@ -14,7 +14,7 @@ h1{
 
 
 
-#pageNav{
+.pageNav{
 		text-align: center;
 	margin-left: auto;
 	margin-right: auto;
@@ -63,7 +63,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#009efc32', e
 	margin-right: auto;
 	width: 90%;
 	text-align:center;
-	
+	word-wrap: break-word;
 		background: -moz-linear-gradient(left, rgba(158,252,50,0) 0%, rgba(158,252,50,0.8) 10%, rgba(158,252,50,1) 26%, rgba(69,234,44,1) 50%, rgba(158,252,50,1) 74%, rgba(158,252,50,0.8) 90%, rgba(158,252,50,0) 100%); /* FF3.6+ */
 background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(158,252,50,0)), color-stop(10%,rgba(158,252,50,0.8)), color-stop(26%,rgba(158,252,50,1)), color-stop(50%,rgba(69,234,44,1)), color-stop(74%,rgba(158,252,50,1)), color-stop(90%,rgba(158,252,50,0.8)), color-stop(100%,rgba(158,252,50,0))); /* Chrome,Safari4+ */
 background: -webkit-linear-gradient(left, rgba(158,252,50,0) 0%,rgba(158,252,50,0.8) 10%,rgba(158,252,50,1) 26%,rgba(69,234,44,1) 50%,rgba(158,252,50,1) 74%,rgba(158,252,50,0.8) 90%,rgba(158,252,50,0) 100%); /* Chrome10+,Safari5.1+ */
@@ -84,8 +84,14 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#009efc32', e
 	
 	
 }
-#comments p {
+
+#commenttag p {
 	margin: 3%;
+	width: 60%;
+	word-wrap: break-word;
+}
+.comments{
+	
 }
 #comments {
 	border-radius: 5px;
@@ -93,6 +99,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#009efc32', e
 	margin-left: auto;
 	margin-right: auto;
 	width:70%;
+	
 	background-color: white;
 }
 #galleryDiv {

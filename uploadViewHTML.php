@@ -33,7 +33,7 @@
 					<p>Filformatet måste vara av typen .jpg, inte vara större än 25mb och inte ha ett namn som är över 40 tecken.</p>
 					<form method='post' enctype='multipart/form-data'>
 					
-					<label for='file'>File:</label>
+					<label>File:</label>
 					<input type='file' name='filename'><br>
 					
 					<input type='submit' name='upload' value='Upload'>
